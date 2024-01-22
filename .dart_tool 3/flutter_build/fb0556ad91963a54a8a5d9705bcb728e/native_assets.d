@@ -1,0 +1,1 @@
+ /Users/sana/Desktop/卒研/workspace/AINavi/ainavi/.dart_tool/flutter_build/fb0556ad91963a54a8a5d9705bcb728e/native_assets.yaml: 

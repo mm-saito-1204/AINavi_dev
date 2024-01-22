@@ -1,0 +1,60 @@
+name: ainavi
+description: A new Flutter project.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # splash画面(起動時ロード画面)
+  flutter_native_splash: ^2.3.1
+  # アプリアイコン
+  flutter_launcher_icons: ^0.13.1
+  # タイマー
+  stop_watch_timer:
+  # sqLite接続
+  sqflite:
+  # OS pathアクセス
+  path:
+  # 画面アイコン
+  cupertino_icons: ^1.0.2
+  # 多言語対応
+  intl: ^0.17.0
+  # カメラ操作(カスタム可能)
+  camera:
+  # 画像撮影・取得(組み込みなのでカスタム不可)
+  image_picker: ^1.0.4
+  file_picker:
+  # AWS接続
+  amazon_cognito_identity_dart_2:
+  # http接続
+  http:
+  # http接続_old
+  dio:
+
+# view splash config
+flutter_native_splash:
+  image: "assets/images/AINavi.png"
+  color: "#FFFFFF"
+  fullscreen: true
+
+# view icon config
+flutter_icons:
+  # image_path_android: "assets/images/AINavi.png"
+  # image_path_ios: "assets/images/AINavi.png"
+  image_path: "assets/images/AINavi.png"
+  android: true
+  ios: true
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+assets:
