@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'config/size_config.dart';
+import 'package:dart_openai/dart_openai.dart';
 
 const THEME_COLOR = Colors.blue;
 

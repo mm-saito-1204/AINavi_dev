@@ -115,19 +115,23 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
 
     // questionsのジャンルを取得し、重複排除した結果をgenreListとして保存
     List<String> tmpGenreList = [""];
-    questions.map((q) => tmpGenreList.addAll(q.getGenres));
+    questions.forEach((question) {
+      tmpGenreList += question.getGenres;
+    });
     genreList = tmpGenreList.toSet().toList();
 
     // questionsのお題を取得し、重複排除した結果をquestionTitleListとして保存
-    questionTitleList = questions
+    List<String> tmpQuestionTitleList = [""];
+    tmpQuestionTitleList = questions
         .map((q) {
           return q.getSubject;
         })
         .toSet()
         .toList();
+    questionTitleList = [""] + tmpQuestionTitleList;
 
     // debug
-    // genreList = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+    // questionTitleList = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   }
 
   @override

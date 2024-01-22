@@ -25,8 +25,20 @@ class TopPage extends StatefulWidget {
 class _TopPageState extends State<TopPage> {
   // タブページ
   final _tab = <Tab>[
-    const Tab(text: 'judge_image', icon: Icon(Icons.directions_car)),
-    const Tab(text: 'judge_movie', icon: Icon(Icons.directions_bike)),
+    Tab(
+      icon: Icon(
+        Icons.image,
+        size: SizeConfig.blockSizeHorizontal * 7,
+      ),
+      text: "ES画像解析",
+    ),
+    Tab(
+      icon: Icon(
+        Icons.video_camera_front_outlined,
+        size: SizeConfig.blockSizeHorizontal * 7,
+      ),
+      text: "面接動画解析",
+    ),
   ];
 
   // 日本語対応
@@ -82,22 +94,7 @@ class _TopPageState extends State<TopPage> {
           color: widget.themeColor,
           child: SafeArea(
             child: TabBar(
-              tabs: <Widget>[
-                Tab(
-                  icon: Icon(
-                    Icons.image,
-                    size: SizeConfig.blockSizeHorizontal * 7,
-                  ),
-                  text: "ES画像解析",
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.video_camera_front_outlined,
-                    size: SizeConfig.blockSizeHorizontal * 7,
-                  ),
-                  text: "面接動画解析",
-                ),
-              ],
+              tabs: _tab,
               labelColor: Colors.white,
             ),
           ),

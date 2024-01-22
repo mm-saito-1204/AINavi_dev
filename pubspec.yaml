@@ -34,6 +34,8 @@ dependencies:
   http:
   # http接続_old
   dio:
+  #
+  dart_openai:
 
 # view splash config
 flutter_native_splash:
