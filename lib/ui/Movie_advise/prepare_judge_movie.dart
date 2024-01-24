@@ -76,9 +76,9 @@ class ResultJudgeImageState extends State<PrepareJudgeMoviePage> {
             const IconThemeData(color: Color.fromARGB(255, 112, 112, 112)),
         centerTitle: true,
         title: Text(
-          widget.title,
+          "AINavi:${widget.title}",
           style: TextStyle(
-            fontSize: 30,
+            fontSize: 24,
             color: widget.themeColor,
             fontWeight: FontWeight.bold,
           ),

@@ -1,6 +1,5 @@
 import 'package:ainavi/ui/top_tabs/tab_judge_movie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:ainavi/config/size_config.dart';

@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス
@@ -10,10 +15,12 @@ class ResultJudgeImagePage extends StatefulWidget {
     required this.title,
     required this.themeColor,
     required this.map,
+    required this.image,
   });
   final String title;
   final Color themeColor;
   final Map<String, dynamic> map;
+  final File? image;
   @override
   State<ResultJudgeImagePage> createState() => ResultJudgeImageState();
 }
@@ -23,10 +30,13 @@ class ResultJudgeImagePage extends StatefulWidget {
  */
 class ResultJudgeImageState extends State<ResultJudgeImagePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     Map<String, dynamic> map = widget.map;
+    Map<String, dynamic> mapEmotions = widget.map["emotion"];
+    final listEmotions = <Emotion>[];
+    mapEmotions.forEach((k, v) => listEmotions.add(Emotion(k, v)));
+
     // setState() の度に実行される
     return Scaffold(
       key: _scaffoldKey,
@@ -38,9 +48,9 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
             const IconThemeData(color: Color.fromARGB(255, 112, 112, 112)),
         centerTitle: true,
         title: Text(
-          widget.title,
+          "AINavi:${widget.title}",
           style: TextStyle(
-            fontSize: 30,
+            fontSize: 24,
             color: widget.themeColor,
             fontWeight: FontWeight.bold,
           ),
@@ -67,6 +77,9 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
                         color: Colors.blue[100],
                         boxShadow: const [
                           BoxShadow(
+                            spreadRadius: 0,
+                            blurRadius: 10,
+                            offset: Offset(10, 10),
                             color: Colors.grey,
                           ),
                         ],
@@ -86,47 +99,33 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
 
                     // between「functional description field」and「rank display field」
                     SizedBox(
-                      height: SizeConfig.safeBlockVertical * 3,
+                      height: SizeConfig.safeBlockVertical * 2.5,
                     ),
 
                     // rank display field
-                    Container(
-                      width: SizeConfig.safeBlockHorizontal * 86,
-                      height: SizeConfig.safeBlockVertical * 30,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(color: Colors.grey),
-                        ],
-                      ),
-                      child: Center(
+                    contentCard(
+                      SizeConfig.safeBlockVertical * 30.6,
+                      Center(
                         child: Row(
                           children: [
                             SizedBox(
-                              width: SizeConfig.blockSizeHorizontal * 6,
+                              width: SizeConfig.blockSizeHorizontal * 0,
                             ),
 
                             // picture
                             Container(
-                              color: Colors.grey,
-                              width: SizeConfig.safeBlockHorizontal * 28.5,
-                              height: SizeConfig.safeBlockHorizontal * 38,
+                              color: Colors.white,
+                              width: SizeConfig.safeBlockHorizontal * 48,
+                              height: SizeConfig.safeBlockHorizontal * 64,
                               child: Center(
-                                child: Text(
-                                  // "画像",
-                                  map['statusCode'].toString() +
-                                      ":" +
-                                      map['error_message'].toString(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[600],
-                                  ),
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: Image.file(widget.image!),
                                 ),
                               ),
                             ),
 
-                            // picture and rank
+                            // between picture and rank
                             SizedBox(
                               width: SizeConfig.blockSizeHorizontal * 5,
                             ),
@@ -139,10 +138,11 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
                                 ),
                                 const Text(
                                   "あなたの写真は...",
-                                  style: TextStyle(color: Colors.grey),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16),
                                 ),
                                 SizedBox(
-                                  height: SizeConfig.blockSizeVertical * 5,
+                                  height: SizeConfig.blockSizeVertical * 2,
                                 ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -152,9 +152,9 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
                                     ),
                                     Text(
                                       map['rank'].toString(),
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 40,
+                                      style: TextStyle(
+                                        color: rankGetColor(map['rank']),
+                                        fontSize: 80,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -184,51 +184,59 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
                     ),
 
                     // advice field
-                    Container(
-                      width: SizeConfig.safeBlockHorizontal * 86,
-                      height: SizeConfig.safeBlockVertical * 25,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(color: Colors.grey),
-                        ],
-                      ),
-                      child: Center(
+                    contentCard(
+                      SizeConfig.safeBlockVertical * 20,
+                      Center(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            const Text(
-                              "総評",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                            leftSpaceText(
+                              5,
+                              const Text(
+                                "総評",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                            Text(
-                              "　〜〜〜〜〜〜〜〜です",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+                            // 総評の回答
+                            leftSpaceText(
+                              10,
+                              Text(
+                                map["generalReview"],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
+                            // もっとよくするには？
                             SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            const Text(
-                              "もっとよくするには？",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                            leftSpaceText(
+                              5,
+                              const Text(
+                                "もっとよくするには？",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                            Text(
-                              "　${map["advice_message"].toString()}",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+                            // もっとよくするには？の回答
+                            leftSpaceText(
+                              10,
+                              Text(
+                                "${map["advice_message"]}",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -240,60 +248,67 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
                     ),
 
                     // graph field
-                    Container(
-                      width: SizeConfig.safeBlockHorizontal * 86,
-                      height: SizeConfig.safeBlockVertical * 25,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(color: Colors.grey),
-                        ],
-                      ),
-                      child: Center(
+                    contentCard(
+                      SizeConfig.safeBlockVertical * 50,
+                      Center(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            const Text(
-                              "　　あなたの表情から読み取れる感情",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                            leftSpaceText(
+                              5.0,
+                              const Text(
+                                "あなたの表情から読み取れる感情",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                             SizedBox(height: SizeConfig.blockSizeVertical * 1),
-                            Row(
-                              children: [
-                                SizedBox(
-                                    width: SizeConfig.blockSizeHorizontal * 8),
-                                // picture
-                                Container(
-                                  color: Colors.grey,
-                                  width: SizeConfig.safeBlockHorizontal * 26,
-                                  height: SizeConfig.safeBlockHorizontal * 26,
-                                  child: Center(
-                                    child: Text(
-                                      "円グラフ",
-                                      style: TextStyle(
-                                        fontSize: 16,
+                            // 円グラフ
+                            Center(
+                              child: Container(
+                                // color: Colors.grey,
+                                width: SizeConfig.safeBlockHorizontal * 80,
+                                height: SizeConfig.safeBlockHorizontal * 60,
+                                decoration:
+                                    BoxDecoration(border: Border.all(width: 1)),
+                                child: Center(
+                                  child: base64toFile(map["img"]),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: SizeConfig.blockSizeHorizontal * 8,
+                            ),
+                            Expanded(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: map["emotion"].length,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  String emotionName =
+                                      listEmotions[index].getEmotionName;
+                                  double emotionValue =
+                                      listEmotions[index].getEmotionValue * 100;
+                                  String emotionPercent =
+                                      emotionValue.toInt().toString();
+                                  return leftSpaceText(
+                                    5,
+                                    Text(
+                                      "${index + 1}位　$emotionName ：$emotionPercent%",
+                                      style: const TextStyle(
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.grey[600],
+                                        color: Colors.black,
                                       ),
                                     ),
-                                  ),
-                                ),
-                                SizedBox(
-                                    width: SizeConfig.blockSizeHorizontal * 8),
-                                const Column(
-                                  children: [
-                                    Text("１位：平常"),
-                                    Text("２位：笑顔"),
-                                    Text("３位：恐怖")
-                                  ],
-                                ),
-                              ],
-                            )
+                                  );
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -310,4 +325,102 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
       ),
     );
   }
+}
+
+/*
+ * emotionを扱うクラス
+ */
+class Emotion {
+  final String _emotionName;
+  final double _emotionValue;
+
+  // constructor
+  Emotion(
+    this._emotionName,
+    this._emotionValue,
+  );
+
+  // getter
+  String get getEmotionName => _emotionName;
+  double get getEmotionValue => _emotionValue;
+}
+
+/* 
+ * ランクによる色分け
+ */
+rankGetColor(rank) {
+  MaterialColor color;
+
+  switch (rank) {
+    case 'A':
+      color = Colors.red;
+      break;
+    case 'B':
+      color = Colors.blue;
+      break;
+    case 'C':
+      color = Colors.green;
+      break;
+    case 'D':
+      color = Colors.purple;
+      break;
+    case 'E':
+      color = Colors.grey;
+      break;
+    default:
+      // 到達不可
+      color = Colors.yellow;
+      break;
+  }
+
+  return color;
+}
+
+/* 
+ * base64 to file
+ */
+base64toFile(String imgBase64) {
+  Uint8List imgBytes = base64Decode(imgBase64);
+  return Image.memory(imgBytes);
+}
+
+/*
+ * 左にスペースを開ける用row
+ */
+leftSpaceText(double leftSpace, Text text) {
+  return Row(
+    children: [
+      SizedBox(
+        width: SizeConfig.blockSizeHorizontal * leftSpace,
+      ),
+      text,
+    ],
+  );
+}
+
+/*
+ * content card
+ */
+contentCard(height, content) {
+  return Container(
+    width: SizeConfig.safeBlockHorizontal * 92,
+    height: height,
+    clipBehavior: Clip.antiAlias,
+    // 影
+    decoration: BoxDecoration(
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.grey, //色
+          spreadRadius: 0,
+          blurRadius: 10,
+          offset: Offset(10, 10),
+        ),
+      ],
+      borderRadius: BorderRadius.circular(20),
+      color: Colors.white,
+    ),
+    // Cardと被ったWidgetをCardの形に保持する
+    // clipBehavior: Clip.antiAliasWithSaveLayer,
+    child: content,
+  );
 }

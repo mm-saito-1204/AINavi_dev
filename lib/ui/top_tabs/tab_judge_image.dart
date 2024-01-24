@@ -11,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
 
+const aws_ip = "54.238.180.150";
+
 /* 
  * ESアドバイス写真選択画面を生成するクラス
  */
@@ -211,8 +213,24 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                             resultJudgeImage =
                                 await startJudge(context, _image),
 
-                            // 分析成功なら結果画面へ、失敗ならダイアログ表示
-                            if (resultJudgeImage['statusCode'] != 1)
+                            // 分析成功かつ顔認識成功なら結果画面へ、失敗ならダイアログ表示
+                            if (resultJudgeImage['statusCode'] == 1 &&
+                                resultJudgeImage['message'] == 1)
+                              {
+                                // 結果画面へ遷移
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ResultJudgeImagePage(
+                                      title: widget.title,
+                                      themeColor: widget.themeColor,
+                                      map: resultJudgeImage,
+                                      image: _image,
+                                    ),
+                                  ),
+                                ),
+                              }
+                            else
                               {
                                 // 失敗ダイアログ表示
                                 showDialog(
@@ -232,20 +250,6 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                                       ],
                                     );
                                   },
-                                ),
-                              }
-                            else
-                              {
-                                // 結果画面へ遷移
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ResultJudgeImagePage(
-                                      title: widget.title,
-                                      themeColor: widget.themeColor,
-                                      map: resultJudgeImage,
-                                    ),
-                                  ),
                                 ),
                               }
                           }
@@ -309,7 +313,7 @@ Future<Map<String, dynamic>> startJudge(
   } catch (e) {
     //ダイアログを閉じる（追加）
     resultJudgeImage['statusCode'] = 99;
-    resultJudgeImage['errorMessage'] = "サーバ接続に失敗しました";
+    resultJudgeImage['errorMessage'] = "予期せぬエラーが発生しました。";
     resultJudgeImage['detailErrorMessage'] = "管理者へお問い合わせください";
     Navigator.pop(context);
   }
@@ -332,7 +336,7 @@ class ConnectAWS {
     // 認証なしアクセス
     http.Response response;
     try {
-      const endpoint = 'http://18.179.61.163:8000/judge_photo';
+      const endpoint = 'http://$aws_ip:8000/judge_photo';
       Uri url = Uri.parse(endpoint);
       Map<String, String> headers = {'content-type': 'application/json'};
       String image_base64 = base64Encode(_image!.readAsBytesSync());
@@ -359,6 +363,13 @@ class ConnectAWS {
     // true response
     if (200 <= statusCode && statusCode <= 299) {
       resultJudgeImage['statusCode'] = 1;
+      if (resultJudgeImage['message'] != 1) {
+        resultJudgeImage['errorMessage'] = "顔を認識できませんでした";
+        resultJudgeImage['detailErrorMessage'] = "もう一度やり直してください";
+      } else {
+        resultJudgeImage['errorMessage'] = "";
+        resultJudgeImage['detailErrorMessage'] = "";
+      }
 
       // client error
     } else if (400 <= statusCode && statusCode <= 499) {

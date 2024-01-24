@@ -392,8 +392,8 @@ _tapTile(Question question, BuildContext context, CameraDescription camera) {
                 context,
                 MaterialPageRoute(
                   builder: (context) => PrepareJudgeMoviePage(
-                      title: "judge_movie",
-                      themeColor: Colors.blue[100]!,
+                      title: "面接解析",
+                      themeColor: Colors.blue,
                       question: question,
                       camera: camera),
                 ),
