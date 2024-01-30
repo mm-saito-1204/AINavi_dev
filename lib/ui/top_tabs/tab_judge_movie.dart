@@ -1,5 +1,6 @@
 import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/ui/Movie_advise/prepare_judge_movie.dart';
+import 'package:ainavi/main.dart';
+import 'package:ainavi/ui/Movie_advise/execute_judge_movie.dart';
 import 'package:ainavi/model/tables/question.dart';
 
 import 'package:flutter/material.dart';
@@ -17,13 +18,15 @@ class TabPageJudgeMovie extends StatefulWidget {
   final String title;
   final Color themeColor;
   final CameraDescription camera;
+  final String awsIp;
 
-  const TabPageJudgeMovie(
-      {Key? key,
-      required this.title,
-      required this.themeColor,
-      required this.camera})
-      : super(key: key);
+  const TabPageJudgeMovie({
+    Key? key,
+    required this.title,
+    required this.themeColor,
+    required this.camera,
+    required this.awsIp,
+  }) : super(key: key);
 
   @override
   _TabPageJudgeMovieState createState() => _TabPageJudgeMovieState();
@@ -129,9 +132,6 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
         .toSet()
         .toList();
     questionTitleList = [""] + tmpQuestionTitleList;
-
-    // debug
-    // questionTitleList = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   }
 
   @override
@@ -356,10 +356,10 @@ _listTileQuestion(
         color: Colors.blue,
         size: 30.0,
       ),
-      title: Text(question.getNumber.toString() + ". " + question.getSubject),
-      subtitle: Text("ジャンル：" + question.getGenres[0]),
+      title: Text("${question.getNumber.toString()}. ${question.getSubject}"),
+      subtitle: Text("ジャンル： + ${question.getGenres[0]}"),
       onTap: () {
-        _tapTile(question, context, camera);
+        _tapTile(question, context, camera, awsIp);
       },
     ),
   );
@@ -368,34 +368,35 @@ _listTileQuestion(
 /* 
  * お題タイルタップ時のダイアログ表示関数
  */
-_tapTile(Question question, BuildContext context, CameraDescription camera) {
+_tapTile(Question question, BuildContext context, CameraDescription camera,
+    String awsIp) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
         title: const Text("このお題の動画を撮影・解析しますか？"),
-        content:
-            Text("お題：" + question.getSubject + "\n" + question.getPoints[0]),
+        content: Text("お題：${question.getSubject}\n${question.getPoints[0]}"),
         actions: <Widget>[
-          GestureDetector(
+          TextButton(
             child: const Text('いいえ'),
-            onTap: () {
+            onPressed: () {
               Navigator.pop(context);
             },
           ),
-          GestureDetector(
+          TextButton(
             child: const Text('はい'),
-            onTap: () {
+            onPressed: () {
               Navigator.pop(context);
               // 結果画面へ遷移
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrepareJudgeMoviePage(
+                  builder: (context) => ExecuteJudgeMoviePage(
                       title: "面接解析",
                       themeColor: Colors.blue,
                       question: question,
-                      camera: camera),
+                      camera: camera,
+                      awsIP: awsIp),
                 ),
               );
             },

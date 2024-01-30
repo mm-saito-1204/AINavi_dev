@@ -11,10 +11,12 @@ class TopPage extends StatefulWidget {
       {super.key,
       required this.title,
       required this.themeColor,
-      required this.camera});
+      required this.camera,
+      required this.awsIp});
   final String title;
   final Color themeColor;
   final CameraDescription camera;
+  final String awsIp;
 
   @override
   State<TopPage> createState() => _TopPageState();
@@ -79,12 +81,14 @@ class _TopPageState extends State<TopPage> {
           TabPageJudgeImage(
             title: 'ES画像解析',
             themeColor: widget.themeColor,
+            awsIp: widget.awsIp,
           ),
           // 動画解析画面の呼び出し
           TabPageJudgeMovie(
             title: '面接動画解析',
             themeColor: widget.themeColor,
             camera: widget.camera,
+            awsIp: widget.awsIp,
           ),
         ]),
 

@@ -10,9 +10,11 @@ Future<void> showLoadingDialog({
       barrierColor: Colors.black.withOpacity(0.5), // 画面マスクの透明度
       pageBuilder: (BuildContext context, Animation animation,
           Animation secondaryAnimation) {
-        return const PopScope(
-          canPop: false,
-          child: Center(
+        return WillPopScope(
+          onWillPop: () async {
+            return false;
+          },
+          child: const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

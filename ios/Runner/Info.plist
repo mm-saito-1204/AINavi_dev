@@ -53,7 +53,7 @@
 		<string>このアプリは写真を撮影するためにカメラにアクセスします。</string>
 		<!-- マイクアクセス -->
 		<key>NSMicrophoneUsageDescription</key>
-		<string>このアプリでは、マイクを使って写真ライブラリにファイルを追加する必要があります</string>
+		<string>このアプリは音声を録音するためにマイクにアクセスします。</string>
 		<key>UIStatusBarHidden</key>
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>

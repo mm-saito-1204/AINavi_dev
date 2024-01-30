@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/main.dart';
 import 'package:ainavi/ui/loading/loading.dart';
 import 'package:ainavi/ui/es_advise/result_judge_image.dart';
 
@@ -11,17 +12,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
 
-const aws_ip = "54.238.180.150";
-
 /* 
  * ESアドバイス写真選択画面を生成するクラス
  */
 class TabPageJudgeImage extends StatefulWidget {
   final String title;
   final Color themeColor;
+  final String awsIp;
 
   const TabPageJudgeImage(
-      {Key? key, required this.title, required this.themeColor})
+      {Key? key,
+      required this.title,
+      required this.themeColor,
+      required this.awsIp})
       : super(key: key);
   @override
   _TabPageJudgeImageState createState() => _TabPageJudgeImageState();
@@ -211,7 +214,7 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                         if (_image != null)
                           {
                             resultJudgeImage =
-                                await startJudge(context, _image),
+                                await startJudge(context, _image, awsIp),
 
                             // 分析成功かつ顔認識成功なら結果画面へ、失敗ならダイアログ表示
                             if (resultJudgeImage['statusCode'] == 1 &&
@@ -297,7 +300,7 @@ _innerShadow() {
 
 // 分析開始
 Future<Map<String, dynamic>> startJudge(
-    BuildContext context, File? _image) async {
+    BuildContext context, File? _image, String awsIp) async {
   Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
   try {
     // ローディング画面表示
@@ -307,14 +310,15 @@ Future<Map<String, dynamic>> startJudge(
     // await stopFiveSeconds();
 
     // aws 接続
-    resultJudgeImage = await ConnectAWS.uploadImage(_image);
+    resultJudgeImage = await ConnectAWS.uploadImage(_image, awsIp);
 
     Navigator.pop(context);
   } catch (e) {
     //ダイアログを閉じる（追加）
     resultJudgeImage['statusCode'] = 99;
-    resultJudgeImage['errorMessage'] = "予期せぬエラーが発生しました。";
-    resultJudgeImage['detailErrorMessage'] = "管理者へお問い合わせください";
+    resultJudgeImage['errorMessage'] = "ネットワークエラー";
+    resultJudgeImage['detailErrorMessage'] = "インターネットへの接続をご確認ください。";
+    print(e);
     Navigator.pop(context);
   }
 
@@ -332,11 +336,11 @@ Future<void> stopFiveSeconds() async {
 }
 
 class ConnectAWS {
-  static uploadImage(File? _image) async {
+  static uploadImage(File? _image, String awsIp) async {
     // 認証なしアクセス
     http.Response response;
     try {
-      const endpoint = 'http://$aws_ip:8000/judge_photo';
+      String endpoint = 'http://$awsIp:8000/judge_photo';
       Uri url = Uri.parse(endpoint);
       Map<String, String> headers = {'content-type': 'application/json'};
       String image_base64 = base64Encode(_image!.readAsBytesSync());

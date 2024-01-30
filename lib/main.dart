@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'config/size_config.dart';
-import 'package:dart_openai/dart_openai.dart';
 
 const THEME_COLOR = Colors.blue;
+const awsIp = "";
 
 /* 
  * エントリーポイント
@@ -23,7 +23,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(AINaviApp(camera: firstCamera));
+    runApp(AINaviApp(camera: firstCamera, awsIp: awsIp));
   });
 }
 
@@ -31,9 +31,10 @@ Future<void> main() async {
  * アプリ生成クラス
  */
 class AINaviApp extends StatelessWidget {
-  const AINaviApp({super.key, required this.camera});
+  const AINaviApp({super.key, required this.camera, required this.awsIp});
 
   final CameraDescription camera;
+  final String awsIp;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,11 @@ class AINaviApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         // primaryIconTheme: const IconThemeData(color: Colors.black),
       ),
-      home: TopPage(title: 'AINavi', themeColor: THEME_COLOR, camera: camera),
+      home: TopPage(
+          title: 'AINavi',
+          themeColor: THEME_COLOR,
+          camera: camera,
+          awsIp: awsIp),
     );
   }
 }
