@@ -1,4 +1,4 @@
-name: AINavi
+name: ainavi
 description: 'This is a job-hunting support app utilizing AI.'
 publish_to: 'none'
 version: 0.1.0
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # dotenv
+  flutter_dotenv:
   # shared_preferences利用
   shared_preferences:
   # 状態管理Provider後継
@@ -66,4 +68,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    # 音声
     - assets/records/
+    # 環境変数
+    - assets/.env

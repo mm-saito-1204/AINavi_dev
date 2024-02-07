@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:AINavi/config/constants.dart';
-import 'package:AINavi/widget/ainavi_app_bar.dart';
+import 'package:ainavi/config/constants.dart';
+import 'package:ainavi/widget/ainavi_app_bar.dart';
 import 'package:flutter/services.dart';
-import 'package:AINavi/ui/Movie_advise/result_judge_movie.dart';
-import 'package:AINavi/widget/loading.dart';
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/model/tables/question.dart';
+import 'package:ainavi/ui/Movie_advise/result_judge_movie.dart';
+import 'package:ainavi/widget/loading.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/model/tables/question.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:record/record.dart';
@@ -14,7 +14,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
-import 'package:AINavi/config/constants.dart';
+import 'package:ainavi/config/constants.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス

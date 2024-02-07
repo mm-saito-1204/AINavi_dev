@@ -18,12 +18,6 @@ class AWSConfig {
       'http://${AWSConfig.ipAddress}:8000/judge_movie'; // 動画解析機能のURL
 }
 
-// OpenAI 定数
-class OpenAIConfig {
-  static const String apiKey =
-      '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';
-}
-
 // デバイスで使用可能なインカメラ取得
 _getCameras() async {
   final cameras = await availableCameras();

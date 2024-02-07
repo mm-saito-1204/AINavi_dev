@@ -1,25 +1,19 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/main.dart';
-import 'package:AINavi/widget/loading.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/widget/loading.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
 
 /* 
  * ESアドバイス写真選択画面を生成するクラス
  */
 class TabPageAIChat extends StatefulWidget {
-  final String title;
-
   const TabPageAIChat({
     Key? key,
-    required this.title,
   }) : super(key: key);
   @override
   _TabPageAIChatState createState() => _TabPageAIChatState();

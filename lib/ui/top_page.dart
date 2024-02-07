@@ -1,9 +1,9 @@
-import 'package:AINavi/config/constants.dart';
-import 'package:AINavi/ui/AI_chat/tab_ai_chat.dart';
-import 'package:AINavi/ui/Movie_advise/tab_judge_movie.dart';
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/ui/ES_advise/tab_judge_image.dart';
-import 'package:AINavi/widget/ainavi_app_bar.dart';
+import 'package:ainavi/config/constants.dart';
+import 'package:ainavi/ui/AI_chat/tab_ai_chat.dart';
+import 'package:ainavi/ui/Movie_advise/tab_judge_movie.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/ui/ES_advise/tab_judge_image.dart';
+import 'package:ainavi/widget/ainavi_app_bar.dart';
 
 import 'package:flutter/material.dart';
 
@@ -65,9 +65,9 @@ class _TopPageState extends State<TopPage> {
 
         // タブバーの押下時処理
         body: const TabBarView(children: <Widget>[
-          TabPageJudgeImage(title: 'ES画像解析'), // 画像解析画面の生成
-          TabPageJudgeMovie(title: '面接動画解析'), // 動画解析画面の生成
-          TabPageAIChat(title: 'AIチャット'), // AIチャット画面の生成
+          TabPageJudgeImage(), // 画像解析画面の生成
+          TabPageJudgeMovie(), // 動画解析画面の生成
+          TabPageAIChat(), // AIチャット画面の生成
         ]),
 
         // 画面下部のナビゲーションバー

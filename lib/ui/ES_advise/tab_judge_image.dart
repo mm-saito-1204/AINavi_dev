@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/widget/loading.dart';
-import 'package:AINavi/ui/es_advise/result_judge_image.dart';
-import 'package:AINavi/config/constants.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/widget/loading.dart';
+import 'package:ainavi/ui/es_advise/result_judge_image.dart';
+import 'package:ainavi/config/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -15,11 +15,8 @@ import 'package:image_picker/image_picker.dart';
  * ESアドバイス写真選択画面を生成するクラス
  */
 class TabPageJudgeImage extends StatefulWidget {
-  final String title;
-
   const TabPageJudgeImage({
     Key? key,
-    required this.title,
   }) : super(key: key);
 
   @override

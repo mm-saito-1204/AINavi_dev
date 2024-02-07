@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:AINavi/config/constants.dart';
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/ui/top_page.dart';
+import 'package:ainavi/config/constants.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/ui/top_page.dart';
 
 import 'package:dart_openai/dart_openai.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /* 
  * エントリーポイント
@@ -19,7 +20,8 @@ Future<void> main() async {
   await initializeDateFormatting('ja_JP');
 
   //OpenAPIにAPIキーの設定
-  OpenAI.apiKey = OpenAIConfig.apiKey;
+  await dotenv.load(fileName: 'assets/.env');
+  OpenAI.apiKey = dotenv.env['OPENAI_APIKEY']!;
 
   // アプリ生成
   SystemChrome.setPreferredOrientations([

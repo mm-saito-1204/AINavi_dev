@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/widget/ainavi_app_bar.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/widget/ainavi_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';

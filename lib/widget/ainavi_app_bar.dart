@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:AINavi/config/constants.dart';
+import 'package:ainavi/config/constants.dart';
 
 ainaviAppBar([String? functionTitle]) {
   // 機能名がなければ「アプリ名」

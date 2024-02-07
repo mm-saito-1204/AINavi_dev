@@ -1,6 +1,6 @@
-import 'package:AINavi/config/size_config.dart';
-import 'package:AINavi/ui/Movie_advise/execute_judge_movie.dart';
-import 'package:AINavi/model/tables/question.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/ui/Movie_advise/execute_judge_movie.dart';
+import 'package:ainavi/model/tables/question.dart';
 
 import 'package:flutter/material.dart';
 
@@ -8,10 +8,7 @@ import 'package:flutter/material.dart';
  * 面接解析お題選択画面を生成するクラス
  */
 class TabPageJudgeMovie extends StatefulWidget {
-  final String title;
-
   const TabPageJudgeMovie({
-    required this.title,
     Key? key,
   }) : super(key: key);
 
