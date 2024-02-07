@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/main.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/widget/ainavi_app_bar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,13 +13,9 @@ import 'package:flutter/services.dart';
 class ResultJudgeImagePage extends StatefulWidget {
   const ResultJudgeImagePage({
     super.key,
-    required this.title,
-    required this.themeColor,
     required this.map,
     required this.image,
   });
-  final String title;
-  final Color themeColor;
   final Map<String, dynamic> map;
   final File? image;
   @override
@@ -36,26 +33,14 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
     Map<String, dynamic> mapEmotions = widget.map["emotion"];
     final listEmotions = <Emotion>[];
     mapEmotions.forEach((k, v) => listEmotions.add(Emotion(k, v)));
+    listEmotions.sort((a, b) => b._emotionValue.compareTo(a._emotionValue));
 
     // setState() の度に実行される
     return Scaffold(
       key: _scaffoldKey,
 
       // 画面上部のバー
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme:
-            const IconThemeData(color: Color.fromARGB(255, 112, 112, 112)),
-        centerTitle: true,
-        title: Text(
-          "AINavi:${widget.title}",
-          style: TextStyle(
-            fontSize: 24,
-            color: widget.themeColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: ainaviAppBar('画像解析'),
 
       // 画面のbody
       body: Center(

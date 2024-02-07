@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/main.dart';
-import 'package:ainavi/ui/loading/loading.dart';
-import 'package:ainavi/ui/es_advise/result_judge_image.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/widget/loading.dart';
+import 'package:AINavi/ui/es_advise/result_judge_image.dart';
+import 'package:AINavi/config/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:image_picker/image_picker.dart';
 
 /* 
@@ -17,15 +16,12 @@ import 'package:image_picker/image_picker.dart';
  */
 class TabPageJudgeImage extends StatefulWidget {
   final String title;
-  final Color themeColor;
-  final String awsIp;
 
-  const TabPageJudgeImage(
-      {Key? key,
-      required this.title,
-      required this.themeColor,
-      required this.awsIp})
-      : super(key: key);
+  const TabPageJudgeImage({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
+
   @override
   _TabPageJudgeImageState createState() => _TabPageJudgeImageState();
 }
@@ -41,11 +37,6 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
   // 画像
   File? _image;
   final picker = ImagePicker();
-
-  // 日本語対応メソッド
-  void initializeLocaleData() async {
-    await initializeDateFormatting('ja_JP');
-  }
 
   // 画像取得メソッド(カメラ)
   Future getImageFromCamera() async {
@@ -67,7 +58,6 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    initializeLocaleData();
     Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
 
     return Center(
@@ -214,7 +204,7 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                         if (_image != null)
                           {
                             resultJudgeImage =
-                                await startJudge(context, _image, awsIp),
+                                await startJudge(context, _image),
 
                             // 分析成功かつ顔認識成功なら結果画面へ、失敗ならダイアログ表示
                             if (resultJudgeImage['statusCode'] == 1 &&
@@ -225,8 +215,6 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ResultJudgeImagePage(
-                                      title: widget.title,
-                                      themeColor: widget.themeColor,
                                       map: resultJudgeImage,
                                       image: _image,
                                     ),
@@ -300,7 +288,7 @@ _innerShadow() {
 
 // 分析開始
 Future<Map<String, dynamic>> startJudge(
-    BuildContext context, File? _image, String awsIp) async {
+    BuildContext context, File? _image) async {
   Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
   try {
     // ローディング画面表示
@@ -310,7 +298,7 @@ Future<Map<String, dynamic>> startJudge(
     // await stopFiveSeconds();
 
     // aws 接続
-    resultJudgeImage = await ConnectAWS.uploadImage(_image, awsIp);
+    resultJudgeImage = await ConnectAWS.uploadImage(_image);
 
     Navigator.pop(context);
   } catch (e) {
@@ -336,11 +324,11 @@ Future<void> stopFiveSeconds() async {
 }
 
 class ConnectAWS {
-  static uploadImage(File? _image, String awsIp) async {
+  static uploadImage(File? _image) async {
     // 認証なしアクセス
     http.Response response;
     try {
-      String endpoint = 'http://$awsIp:8000/judge_photo';
+      String endpoint = AWSConfig.judgeImageURL;
       Uri url = Uri.parse(endpoint);
       Map<String, String> headers = {'content-type': 'application/json'};
       String image_base64 = base64Encode(_image!.readAsBytesSync());

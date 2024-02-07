@@ -1,16 +1,20 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:ainavi/ui/loading/loading.dart';
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/model/tables/question.dart';
+import 'package:AINavi/config/constants.dart';
+import 'package:AINavi/widget/ainavi_app_bar.dart';
+import 'package:flutter/services.dart';
+import 'package:AINavi/ui/Movie_advise/result_judge_movie.dart';
+import 'package:AINavi/widget/loading.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/model/tables/question.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:camera/camera.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'dart:developer';
+import 'package:AINavi/config/constants.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス
@@ -18,17 +22,11 @@ import 'package:http/http.dart' as http;
 class ExecuteJudgeMoviePage extends StatefulWidget {
   const ExecuteJudgeMoviePage({
     super.key,
-    required this.title,
     required this.themeColor,
     required this.question,
-    required this.camera,
-    required this.awsIP,
   });
-  final String title;
   final Color themeColor;
   final Question question;
-  final CameraDescription camera;
-  final String awsIP;
   @override
   State<ExecuteJudgeMoviePage> createState() => ResultJudgeMovieState();
 }
@@ -46,11 +44,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
   String path = ""; // 音声保存パス
   Map<String, dynamic> resultJudgeMovie = <String, dynamic>{}; // 動画分析結果map
 
-  // 日本語対応メソッド
-  void initializeLocaleData() async {
-    await initializeDateFormatting('ja_JP');
-  }
-
   // 初期化
   @override
   void initState() {
@@ -60,7 +53,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
 
   // カメラ初期化
   Future<void> _initCamera() async {
-    _controller = CameraController(widget.camera, ResolutionPreset.max);
+    _controller = CameraController(AppConfig.firstCamera, ResolutionPreset.max);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -83,7 +76,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    initializeLocaleData();
     audioPlayer.setReleaseMode(ReleaseMode.release);
 
     // setState() の度に実行される
@@ -91,20 +83,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
       key: _scaffoldKey,
 
       // 画面上部のバー
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme:
-            const IconThemeData(color: Color.fromARGB(255, 112, 112, 112)),
-        centerTitle: true,
-        title: Text(
-          "AINavi:${widget.title}",
-          style: TextStyle(
-            fontSize: 24,
-            color: widget.themeColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: ainaviAppBar('movie'),
 
       // 画面Mainコンテンツ
       body: Center(
@@ -116,7 +95,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
             child: SingleChildScrollView(
               child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     // functional description field
@@ -159,27 +138,40 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                     ),
 
                     // sentence field
-                    SizedBox(
+                    Container(
+                      alignment: Alignment.center,
                       width: SizeConfig.safeBlockHorizontal * 82,
                       height: SizeConfig.safeBlockVertical * 6,
-                      child: Text("お題：${widget.question.getSubject}"),
+                      child: Text(
+                        "お題：${widget.question.getSubject}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
 
                     // between「sentence field」and「points field」
                     SizedBox(
-                      height: SizeConfig.safeBlockVertical * 4,
+                      height: SizeConfig.safeBlockVertical * 2,
                     ),
 
                     // points field
                     SizedBox(
                       width: SizeConfig.safeBlockHorizontal * 82,
                       height: SizeConfig.safeBlockVertical * 6,
-                      child: Text("ポイント１：${widget.question.getPoints[0]}"),
+                      child: Text(
+                        "ポイント：${widget.question.getPoints[0]}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
 
                     // between「points field」and「start recording button」
                     SizedBox(
-                      height: SizeConfig.safeBlockVertical * 4,
+                      height: SizeConfig.safeBlockVertical * 5,
                     ),
 
                     // start recording button
@@ -254,7 +246,8 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
               child: const Text("OK"),
               onPressed: () {
                 // 再生開始
-                audioPlayer.play(AssetSource("records/圧迫面接_志望理由否定.wav"));
+                String record_path = "records/${widget.question.getNumber}.wav";
+                audioPlayer.play(AssetSource(record_path));
                 setState(() {
                   recordingState = 1;
                 });
@@ -302,49 +295,98 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
             // 解析実行
             TextButton(
               child: const Text("解析する"),
-              onPressed: () {
-                File voice_data = File(path);
-                resultJudgeMovie =
-                                await startJudge(context, voice_data, widget.awsIP);
+              onPressed: () async {
+                // debug: 結果画面強制表示
+                List<String> sentenceStructure = [
+                  "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
+                  "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
+                  "しかし、僕のその姿を見て優しく声をかけてくれました",
+                  "そのおかげで、いまも緊張せずに面接を受けることができています",
+                  "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
+                  "これが、僕が御社を志望した理由です",
+                ];
+                List<String> resultNgword = [];
+                List<String> resultRefrainword = ["僕", "社長さん", "思います"];
+                List<String> resultDoubleHonorificSentenceList = [
+                  "お見えになられ",
+                ];
+                List<String> includeDoubleHonorificSentenceList = [
+                  "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
+                  "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
+                  "しかし、僕のその姿を見て優しく声をかけてくれました",
+                  "そのおかげで、いまも緊張せずに面接を受けることができています",
+                  "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
+                  "これが、僕が御社を志望した理由です",
+                ];
 
-                            // 分析成功かつ顔認識成功なら結果画面へ、失敗ならダイアログ表示
-                            if (resultJudgeMovie['statusCode'] == 1 &&
-                                resultJudgeMovie['message'] == 1)
-                              {
-                                // 結果画面へ遷移
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ResultJudgeMoviePage(
-                                      title: widget.title,
-                                      themeColor: widget.themeColor,
-                                      map: resultJudgeMovie,
-                                    ),
-                                  ),
-                                );
-                              }
-                            else
-                              {
-                                // 失敗ダイアログ表示
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return CupertinoAlertDialog(
-                                      title: Text(
-                                          resultJudgeMovie['errorMessage']),
-                                      content: Text(resultJudgeMovie[
-                                          'detailErrorMessage']),
-                                      actions: [
-                                        CupertinoDialogAction(
-                                          child: Text('OK'),
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
+                resultJudgeMovie = {
+                  "sentence_structure": sentenceStructure,
+                  "result_ngword": resultNgword,
+                  "result_refrainword": resultRefrainword,
+                  "result_double_honorific_sentence_list":
+                      resultDoubleHonorificSentenceList,
+                  "include_double_honorific_sentence_list":
+                      includeDoubleHonorificSentenceList
+                };
+
+                // 秒数指定ローディング画面
+                await showLoadingDialog(context: context);
+                int _counter = 0;
+                while (_counter < 30) {
+                  await Future.delayed(Duration(seconds: 1));
+                  _counter++;
+                }
+                Navigator.pop(context);
+
+                // 画面遷移
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ResultJudgeMoviePage(
+                      map: resultJudgeMovie,
+                      movie: File(path),
+                    ),
+                  ),
+                );
+
+                // File voice_data = File(path);
+                // resultJudgeMovie =
+                //     await startJudge(context, voice_data);
+
+                // // 分析成功かつ顔認識成功なら結果画面へ、失敗ならダイアログ表示
+                // if (resultJudgeMovie['statusCode'] == 1) {
+                //   // 結果画面へ遷移
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => ResultJudgeMoviePage(
+                //         title: widget.title,
+                //         themeColor: widget.themeColor,
+                //         map: resultJudgeMovie,
+                //         movie: voice_data,
+                //       ),
+                //     ),
+                //   );
+                // } else {
+                //   // 失敗ダイアログ表示
+                //   showDialog(
+                //     context: context,
+                //     builder: (context) {
+                //       return CupertinoAlertDialog(
+                //         title: Text(resultJudgeMovie['errorMessage']),
+                //         content: Text(resultJudgeMovie['detailErrorMessage']),
+                //         actions: [
+                //           CupertinoDialogAction(
+                //             child: Text('OK'),
+                //             onPressed: () => Navigator.pop(context),
+                //           ),
+                //         ],
+                //       );
+                //     },
+                //   );
+                // }
               },
             ),
           ],
@@ -355,29 +397,29 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
 
   // 分析開始
   Future<Map<String, dynamic>> startJudge(
-    BuildContext context, File _voice, String awsIp) async {
-  Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
-  try {
-    // ローディング画面表示
-    await showLoadingDialog(context: context);
+      BuildContext context, File _voice) async {
+    Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
+    try {
+      // ローディング画面表示
+      await showLoadingDialog(context: context);
 
-    // debug: 5秒待つ
-    // await stopFiveSeconds();
+      // debug: 5秒待つ
+      // await stopFiveSeconds();
 
-    // aws 接続
-    resultJudgeImage = await ConnectAWS.uploadImage(_voice, awsIp);
+      // aws 接続
+      resultJudgeImage = await ConnectAWS.uploadImage(_voice);
 
-    Navigator.pop(context);
-  } catch (e) {
-    //ダイアログを閉じる（追加）
-    resultJudgeImage['statusCode'] = 99;
-    resultJudgeImage['errorMessage'] = "ネットワークエラー";
-    resultJudgeImage['detailErrorMessage'] = "インターネットへの接続をご確認ください。";
-    print(e);
-    Navigator.pop(context);
-  }
+      Navigator.pop(context);
+    } catch (e) {
+      //ダイアログを閉じる（追加）
+      resultJudgeImage['statusCode'] = 99;
+      resultJudgeImage['errorMessage'] = "ネットワークエラー";
+      resultJudgeImage['detailErrorMessage'] = "インターネットへの接続をご確認ください。";
+      print(e);
+      Navigator.pop(context);
+    }
 
-  return resultJudgeImage;
+    return resultJudgeImage;
   }
 
   // 録音開始
@@ -425,19 +467,24 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
 }
 
 class ConnectAWS {
-  static uploadImage(File _voice, String awsIp) async {
+  static uploadImage(File _voice) async {
     // 認証なしアクセス
     http.Response response;
     try {
-      String endpoint = 'http://$awsIp:8000/judge_movie';
+      String endpoint = AWSConfig.judgeMovieURL;
       Uri url = Uri.parse(endpoint);
       Map<String, String> headers = {'content-type': 'application/json'};
-      String image_base64 = base64Encode(_voice.readAsBytesSync());
+
+      final directory = await getApplicationDocumentsDirectory();
+      String pathToWrite = directory.path;
+      final localFile = '$pathToWrite/interview.wav';
+      String movie_base64 = encodeWavToBase64(localFile);
+      await writeToFile(movie_base64);
       response = await http.post(
         url,
         headers: headers,
         body: json.encode(
-          {'image': image_base64},
+          {'sound': movie_base64, 'key': "1"},
         ),
       );
       // .timeout(const Duration(seconds: 30));
@@ -456,13 +503,8 @@ class ConnectAWS {
     // true response
     if (200 <= statusCode && statusCode <= 299) {
       resultJudgeImage['statusCode'] = 1;
-      if (resultJudgeImage['message'] != 1) {
-        resultJudgeImage['errorMessage'] = "顔を認識できませんでした";
-        resultJudgeImage['detailErrorMessage'] = "もう一度やり直してください";
-      } else {
-        resultJudgeImage['errorMessage'] = "";
-        resultJudgeImage['detailErrorMessage'] = "";
-      }
+      resultJudgeImage['errorMessage'] = "";
+      resultJudgeImage['detailErrorMessage'] = "";
 
       // client error
     } else if (400 <= statusCode && statusCode <= 499) {
@@ -486,4 +528,67 @@ class ConnectAWS {
 
     return resultJudgeImage;
   }
+}
+
+// debug:
+Future<void> writeToFile(String text) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/example.txt');
+  log('${directory.path}/example.txt', name: 'n-saito');
+
+  final data = ClipboardData(text: text);
+  await Clipboard.setData(data);
+  // Write to the file
+  await file.writeAsString(text);
+}
+
+//
+int getWavHeaderLength(List<int> wavBytes) {
+  // RIFFチャンクが終わる位置を検索
+  for (int i = 0; i < wavBytes.length - 3; i++) {
+    if (String.fromCharCodes(wavBytes.sublist(i, i + 4)) == 'RIFF') {
+      return i + 4;
+    }
+  }
+  return 0;
+}
+
+String encodeWavToBase64(String filePath) {
+  // WAVファイルをバイナリデータとして読み込む
+  List<int> wavBytes = File(filePath).readAsBytesSync();
+
+  // WAVファイルのヘッダーとデータを取得
+  Uint8List headerBytes = getWavHeaderBytes(wavBytes);
+  Uint8List dataBytes = getWavDataBytes(wavBytes);
+
+  // ヘッダーとデータをBase64にエンコード
+  String base64EncodedHeader = base64Encode(headerBytes);
+  String base64EncodedData = base64Encode(dataBytes);
+
+  // ヘッダーとデータを連結して返す
+  return base64EncodedHeader + base64EncodedData;
+}
+
+Uint8List getWavHeaderBytes(List<int> wavBytes) {
+  // RIFFチャンクが終わる位置を検索
+  int headerLength = 0;
+  for (int i = 0; i < wavBytes.length - 3; i++) {
+    if (String.fromCharCodes(wavBytes.sublist(i, i + 4)) == 'RIFF') {
+      headerLength = i + 4;
+      break;
+    }
+  }
+  return Uint8List.fromList(wavBytes.sublist(0, headerLength));
+}
+
+Uint8List getWavDataBytes(List<int> wavBytes) {
+  // RIFFチャンクが終わる位置を検索
+  int headerLength = 0;
+  for (int i = 0; i < wavBytes.length - 3; i++) {
+    if (String.fromCharCodes(wavBytes.sublist(i, i + 4)) == 'RIFF') {
+      headerLength = i + 4;
+      break;
+    }
+  }
+  return Uint8List.fromList(wavBytes.sublist(headerLength));
 }

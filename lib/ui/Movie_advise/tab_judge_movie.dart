@@ -1,31 +1,18 @@
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/main.dart';
-import 'package:ainavi/ui/Movie_advise/execute_judge_movie.dart';
-import 'package:ainavi/model/tables/question.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/ui/Movie_advise/execute_judge_movie.dart';
+import 'package:AINavi/model/tables/question.dart';
 
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:intl/date_symbol_data_local.dart';
-
-void initializeLocaleData() async {
-  await initializeDateFormatting('ja_JP'); // 利用したいロケールに合わせて変更
-}
 
 /* 
  * 面接解析お題選択画面を生成するクラス
  */
 class TabPageJudgeMovie extends StatefulWidget {
   final String title;
-  final Color themeColor;
-  final CameraDescription camera;
-  final String awsIp;
 
   const TabPageJudgeMovie({
-    Key? key,
     required this.title,
-    required this.themeColor,
-    required this.camera,
-    required this.awsIp,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -77,37 +64,37 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
     Question(
       5,
       "君は朝助けてくれた青年だね、合格としよう",
-      ["ポイント１：投げ飛ばせ"],
-      ["栄養素"],
+      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
+      ["合格確定"],
     ),
     Question(
       6,
-      "タンパク質について、正しいものをひとつ選べ",
-      ["a"],
-      ["栄養素"],
+      "今までの人生で、一番大変だったことを教えてください",
+      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
+      ["体験談"],
     ),
     Question(
       7,
-      "代謝機構について、正しいものをひとつ選べ",
-      ["a"],
-      ["身体構造"],
+      "今までの人生で、一番の失敗を教えてください",
+      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
+      ["体験談"],
     ),
     Question(
       8,
-      "体づくりに関係する栄養素の組み合わせとして、正しいものをひとつ選べ",
-      ["a"],
-      ["栄養素"],
+      "自分を動物で表すとなにになりますか？",
+      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
+      ["特殊"],
     ),
     Question(
       9,
-      "減量について、正しいものをひとつ選べ",
-      ["a"],
-      ["トレーニング"],
+      "自己PRを１分で話してください",
+      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
+      ["自己PR"],
     ),
     Question(
       10,
-      "筋肥大目的のトレーニング配列において、正しいものをひとつ選べ",
-      ["a"],
+      "ベンチプレスで100kgを超える方法を教えてください",
+      ["胸椎を立ててバーと胸の距離を縮めよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
       ["トレーニング"],
     ),
   ];
@@ -137,7 +124,6 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    initializeLocaleData();
 
     // 画面メインコンテンツ
     return Center(
@@ -327,8 +313,7 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                               (questions[index].getSubject == selectTitle)) ||
                           ((questions[index].getGenres[0] == selectGenre) &&
                               (selectTitle == ""))) {
-                        return _listTileQuestion(
-                            questions[index], context, widget.camera);
+                        return _listTileQuestion(questions[index], context);
                       } else {
                         return null;
                       }
@@ -347,8 +332,7 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
 /* 
  * お題タイル生成関数
  */
-_listTileQuestion(
-    Question question, BuildContext context, CameraDescription camera) {
+_listTileQuestion(Question question, BuildContext context) {
   return Card(
     child: ListTile(
       leading: const Icon(
@@ -357,9 +341,9 @@ _listTileQuestion(
         size: 30.0,
       ),
       title: Text("${question.getNumber.toString()}. ${question.getSubject}"),
-      subtitle: Text("ジャンル： + ${question.getGenres[0]}"),
+      subtitle: Text("ジャンル： ${question.getGenres[0]}"),
       onTap: () {
-        _tapTile(question, context, camera, awsIp);
+        _tapTile(question, context);
       },
     ),
   );
@@ -368,8 +352,7 @@ _listTileQuestion(
 /* 
  * お題タイルタップ時のダイアログ表示関数
  */
-_tapTile(Question question, BuildContext context, CameraDescription camera,
-    String awsIp) {
+_tapTile(Question question, BuildContext context) {
   showDialog(
     context: context,
     builder: (context) {
@@ -392,11 +375,9 @@ _tapTile(Question question, BuildContext context, CameraDescription camera,
                 context,
                 MaterialPageRoute(
                   builder: (context) => ExecuteJudgeMoviePage(
-                      title: "面接解析",
-                      themeColor: Colors.blue,
-                      question: question,
-                      camera: camera,
-                      awsIP: awsIp),
+                    themeColor: Colors.blue,
+                    question: question,
+                  ),
                 ),
               );
             },

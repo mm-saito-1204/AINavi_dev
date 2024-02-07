@@ -1,51 +1,52 @@
-import 'package:ainavi/ui/top_tabs/tab_judge_movie.dart';
+import 'package:AINavi/config/constants.dart';
+import 'package:AINavi/ui/AI_chat/tab_ai_chat.dart';
+import 'package:AINavi/ui/Movie_advise/tab_judge_movie.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/ui/ES_advise/tab_judge_image.dart';
+import 'package:AINavi/widget/ainavi_app_bar.dart';
+
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/ui/top_tabs/tab_judge_image.dart';
 
-// トップ画面生成クラス
+/* 
+ * トップ画面生成クラス
+ */
 class TopPage extends StatefulWidget {
-  const TopPage(
-      {super.key,
-      required this.title,
-      required this.themeColor,
-      required this.camera,
-      required this.awsIp});
-  final String title;
-  final Color themeColor;
-  final CameraDescription camera;
-  final String awsIp;
-
+  const TopPage({super.key});
   @override
   State<TopPage> createState() => _TopPageState();
 }
 
-// トップ画面クラス
+/* 
+ * トップ画面クラス
+ */
 class _TopPageState extends State<TopPage> {
   // タブページ
   final _tab = <Tab>[
+    // 写真解析
     Tab(
       icon: Icon(
         Icons.image,
         size: SizeConfig.blockSizeHorizontal * 7,
       ),
-      text: "ES画像解析",
+      text: "写真解析",
     ),
+    // 面接解析
     Tab(
       icon: Icon(
         Icons.video_camera_front_outlined,
         size: SizeConfig.blockSizeHorizontal * 7,
       ),
-      text: "面接動画解析",
+      text: "面接解析",
+    ),
+    // AIチャット
+    Tab(
+      icon: Icon(
+        Icons.manage_search_sharp,
+        size: SizeConfig.blockSizeHorizontal * 7,
+      ),
+      text: "AIチャット",
     ),
   ];
-
-  // 日本語対応
-  void initializeLocaleData() async {
-    await initializeDateFormatting('ja_JP'); // 利用したいロケールに合わせて変更
-  }
 
   // 画面に対してなにか一時的な付加要素を与える時に使用するキー
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -53,8 +54,6 @@ class _TopPageState extends State<TopPage> {
   // 画面生成
   @override
   Widget build(BuildContext context) {
-    initializeLocaleData();
-
     // タブを扱う画面の生成
     return DefaultTabController(
       length: _tab.length,
@@ -62,39 +61,18 @@ class _TopPageState extends State<TopPage> {
         key: _scaffoldKey,
 
         // 画面上部バー
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: Text(
-            widget.title,
-            style: TextStyle(
-              fontSize: 30,
-              color: widget.themeColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        appBar: ainaviAppBar(),
 
-        // タブバーを押下した際のページ生成処理
-        body: TabBarView(children: <Widget>[
-          // 画像解析画面の呼び出し
-          TabPageJudgeImage(
-            title: 'ES画像解析',
-            themeColor: widget.themeColor,
-            awsIp: widget.awsIp,
-          ),
-          // 動画解析画面の呼び出し
-          TabPageJudgeMovie(
-            title: '面接動画解析',
-            themeColor: widget.themeColor,
-            camera: widget.camera,
-            awsIp: widget.awsIp,
-          ),
+        // タブバーの押下時処理
+        body: const TabBarView(children: <Widget>[
+          TabPageJudgeImage(title: 'ES画像解析'), // 画像解析画面の生成
+          TabPageJudgeMovie(title: '面接動画解析'), // 動画解析画面の生成
+          TabPageAIChat(title: 'AIチャット'), // AIチャット画面の生成
         ]),
 
         // 画面下部のナビゲーションバー
         bottomNavigationBar: Container(
-          color: widget.themeColor,
+          color: AppConfig.themeColor,
           child: SafeArea(
             child: TabBar(
               tabs: _tab,

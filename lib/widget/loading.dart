@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/* 
+ * 非同期ローディング画面生成クラス
+ */
 Future<void> showLoadingDialog({
   required BuildContext context,
 }) async {

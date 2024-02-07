@@ -1,11 +1,12 @@
-import 'package:ainavi/ui/top_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:camera/camera.dart';
-import 'config/size_config.dart';
 
-const THEME_COLOR = Colors.blue;
-const awsIp = "";
+import 'package:AINavi/config/constants.dart';
+import 'package:AINavi/config/size_config.dart';
+import 'package:AINavi/ui/top_page.dart';
+
+import 'package:dart_openai/dart_openai.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 /* 
  * エントリーポイント
@@ -13,17 +14,20 @@ const awsIp = "";
 Future<void> main() async {
   // main 関数内で非同期処理を呼び出すための設定
   WidgetsFlutterBinding.ensureInitialized();
-  // デバイスで使用可能なカメラのリストを取得
-  final cameras = await availableCameras();
-  // 利用可能なカメラのリストからインカメラを取得
-  final firstCamera = cameras[1];
 
+  // 日本語対応メソッド
+  await initializeDateFormatting('ja_JP');
+
+  //OpenAPIにAPIキーの設定
+  OpenAI.apiKey = OpenAIConfig.apiKey;
+
+  // アプリ生成
   SystemChrome.setPreferredOrientations([
-    // 縦向きを矯正
+    // 縦向きの強制
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(AINaviApp(camera: firstCamera, awsIp: awsIp));
+    runApp(const AINaviApp());
   });
 }
 
@@ -31,10 +35,7 @@ Future<void> main() async {
  * アプリ生成クラス
  */
 class AINaviApp extends StatelessWidget {
-  const AINaviApp({super.key, required this.camera, required this.awsIp});
-
-  final CameraDescription camera;
-  final String awsIp;
+  const AINaviApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,16 +46,11 @@ class AINaviApp extends StatelessWidget {
 
     // アプリの生成
     return MaterialApp(
-      title: 'AI Navi',
+      title: AppConfig.title,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        // primaryIconTheme: const IconThemeData(color: Colors.black),
+        primarySwatch: AppConfig.themeColor,
       ),
-      home: TopPage(
-          title: 'AINavi',
-          themeColor: THEME_COLOR,
-          camera: camera,
-          awsIp: awsIp),
+      home: const TopPage(),
     );
   }
 }

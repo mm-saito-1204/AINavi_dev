@@ -1,5 +1,5 @@
-name: ainavi
-description: A new Flutter project.
+name: AINavi
+description: 'This is a job-hunting support app utilizing AI.'
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,16 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # shared_preferences利用
+  shared_preferences:
+  # 状態管理Provider後継
+  riverpod: ^2.5.0
   # splash画面(起動時ロード画面)
   flutter_native_splash: ^2.3.1
   # アプリアイコン
   flutter_launcher_icons: ^0.13.1
-  # 録音
-  # record:
-  # 再生
-  # audioplayers: ^5.2.1
-  # データアクセスパス用
-  # path_provider:
   # タイマー
   stop_watch_timer:
   # sqLite接続
@@ -40,9 +38,12 @@ dependencies:
   http:
   # http接続_old
   dio:
+  # 音声関連
   record:
   audioplayers:
   path_provider:
+  # chatGPT用open-ai
+  dart_openai: ^4.0.0
 
 
 # view splash config
