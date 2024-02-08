@@ -1,6 +1,9 @@
+/*
+ * 面接のお題モデル
+ */
 class Question {
   int _number;
-  String _subject; // 問題文
+  String _subject; // お題
   List<String> _points;
   List<String> _genres;
 

@@ -1,15 +1,16 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/widget/functional_description_bar.dart';
 import 'package:ainavi/widget/loading.dart';
 import 'package:ainavi/ui/es_advise/result_judge_image.dart';
 import 'package:ainavi/config/constants.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 /* 
  * ESアドバイス写真選択画面を生成するクラス
@@ -69,28 +70,15 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  // functional description field
-                  Container(
-                    width: SizeConfig.safeBlockHorizontal * 100,
-                    height: SizeConfig.safeBlockVertical * 7.5,
-                    color: Colors.blue[100],
-                    child: const Center(
-                      child: Text(
-                        "ES写真を撮影し、AIにアドバイスをもらおう！",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // 機能説明バー
+                  functionalDescriptionBar('ES写真を撮影し、AIにアドバイスをもらおう！'),
 
-                  // between「functional description field」and「image display field」
+                  // between「機能説明バー」and「画像表示欄」
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 3.5,
                   ),
 
-                  // image display field
+                  // 画像表示欄
                   Container(
                     width: SizeConfig.safeBlockHorizontal * 60,
                     height: SizeConfig.safeBlockHorizontal * 80,
@@ -112,20 +100,20 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                           ),
                   ),
 
-                  // between「image display field」and「take a picture button」
+                  // between「画像表示欄」and「画像撮影ボタン」
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 3.5,
                   ),
 
-                  // take a picture button
+                  // 画像撮影ボタン
                   SizedBox(
                     width: SizeConfig.safeBlockHorizontal * 58,
                     height: SizeConfig.safeBlockVertical * 6,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8) //こちらを適用
-                            ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         backgroundColor:
                             const Color.fromARGB(255, 101, 116, 163),
                       ),
@@ -145,20 +133,20 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                     ),
                   ),
 
-                  // between「take a picture button」and「select a picture button」
+                  // between「画像撮影ボタン」and「画像選択ボタン」
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 3.5,
                   ),
 
-                  // select a picture button
+                  // 画像選択ボタン
                   SizedBox(
                     width: SizeConfig.safeBlockHorizontal * 58,
                     height: SizeConfig.safeBlockVertical * 6,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8) //こちらを適用
-                            ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         backgroundColor:
                             const Color.fromARGB(255, 101, 116, 163),
                       ),
@@ -178,12 +166,10 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                     ),
                   ),
 
-                  // between「select a picture button」and「start analysis button」
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 4,
-                  ),
+                  // between「画像選択ボタン」and「解析開始ボタン」
+                  SizedBox(height: SizeConfig.safeBlockVertical * 4),
 
-                  // start analysis button
+                  // 解析開始ボタン
                   SizedBox(
                     width: SizeConfig.safeBlockHorizontal * 82,
                     height: SizeConfig.safeBlockVertical * 6,
@@ -257,7 +243,7 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
                     ),
                   ),
 
-                  // between「start analysis button」and「under bar」
+                  // between「解析開始ボタン」and「under bar」
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 6,
                   ),
@@ -315,7 +301,7 @@ Future<void> stopFiveSeconds() async {
   int _counter = 0;
 
   while (_counter < 5) {
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     _counter++;
   }
 }

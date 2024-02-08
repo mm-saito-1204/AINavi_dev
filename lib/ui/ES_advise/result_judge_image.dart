@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:ainavi/config/size_config.dart';
-import 'package:ainavi/widget/ainavi_app_bar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:ainavi/widget/functional_description_bar.dart';
+import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/model/tables/emotion.dart';
+import 'package:ainavi/widget/ainavi_app_bar.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス
@@ -33,7 +34,7 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
     Map<String, dynamic> mapEmotions = widget.map["emotion"];
     final listEmotions = <Emotion>[];
     mapEmotions.forEach((k, v) => listEmotions.add(Emotion(k, v)));
-    listEmotions.sort((a, b) => b._emotionValue.compareTo(a._emotionValue));
+    listEmotions.sort((a, b) => b.emotionValue.compareTo(a.emotionValue));
 
     // setState() の度に実行される
     return Scaffold(
@@ -52,282 +53,238 @@ class ResultJudgeImageState extends State<ResultJudgeImagePage> {
             radius: const Radius.circular(16),
             child: SingleChildScrollView(
               child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    // functional description field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        boxShadow: const [
-                          BoxShadow(
-                            spreadRadius: 0,
-                            blurRadius: 10,
-                            offset: Offset(10, 10),
-                            color: Colors.grey,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  // 機能説明バー
+                  functionalDescriptionBar('結果は以下の通りです！'),
+
+                  // between「機能説明バー」and「画像・ランク表示カード」
+                  SizedBox(height: SizeConfig.safeBlockVertical * 2.5),
+
+                  // 画像・ランク表示カード
+                  contentCard(
+                    SizeConfig.safeBlockVertical * 30.6,
+                    Center(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: SizeConfig.blockSizeHorizontal * 0,
+                          ),
+
+                          // 画像
+                          Container(
+                            color: Colors.white,
+                            width: SizeConfig.safeBlockHorizontal * 48,
+                            height: SizeConfig.safeBlockHorizontal * 64,
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Image.file(widget.image!),
+                              ),
+                            ),
+                          ),
+
+                          // between 「画像」and「ランク」
+                          SizedBox(
+                            width: SizeConfig.blockSizeHorizontal * 5,
+                          ),
+
+                          // ランク
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: SizeConfig.blockSizeVertical * 3,
+                              ),
+                              const Text(
+                                "あなたの写真は...",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                              SizedBox(
+                                height: SizeConfig.blockSizeVertical * 2,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    width: SizeConfig.blockSizeHorizontal * 2,
+                                  ),
+                                  Text(
+                                    map['rank'].toString(),
+                                    style: TextStyle(
+                                      color: rankGetColor(map['rank']),
+                                      fontSize: 80,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: SizeConfig.blockSizeHorizontal * 2,
+                                  ),
+                                  const Text(
+                                    "ランク！",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      width: SizeConfig.safeBlockHorizontal * 100,
-                      height: SizeConfig.safeBlockVertical * 7.5,
-                      child: const Center(
-                        child: Text(
-                          "結果は以下の通りです！",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  // between「ランク・画像表示カード」and「アドバイスカード」
+                  SizedBox(
+                    height: SizeConfig.safeBlockVertical * 3,
+                  ),
+
+                  // アドバイスカード
+                  contentCard(
+                    SizeConfig.safeBlockVertical * 20,
+                    Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: SizeConfig.blockSizeVertical * 2),
+                          leftSpaceText(
+                            5,
+                            const Text(
+                              "総評",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
-                        ),
+                          // 総評の回答
+                          leftSpaceText(
+                            10,
+                            Text(
+                              map["generalReview"],
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                          // もっとよくするには？
+                          SizedBox(height: SizeConfig.blockSizeVertical * 2),
+                          leftSpaceText(
+                            5,
+                            const Text(
+                              "もっとよくするには？",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          // もっとよくするには？の回答
+                          leftSpaceText(
+                            10,
+                            Text(
+                              "${map["advice_message"]}",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
+                  ),
 
-                    // between「functional description field」and「rank display field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 2.5,
-                    ),
+                  // between「アドバイスカード」and「グラフカード」
+                  SizedBox(
+                    height: SizeConfig.safeBlockVertical * 3,
+                  ),
 
-                    // rank display field
-                    contentCard(
-                      SizeConfig.safeBlockVertical * 30.6,
-                      Center(
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: SizeConfig.blockSizeHorizontal * 0,
+                  // グラフカード
+                  contentCard(
+                    SizeConfig.safeBlockVertical * 50,
+                    Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: SizeConfig.blockSizeVertical * 2),
+                          leftSpaceText(
+                            5.0,
+                            const Text(
+                              "あなたの表情から読み取れる感情",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
-
-                            // picture
-                            Container(
-                              color: Colors.white,
-                              width: SizeConfig.safeBlockHorizontal * 48,
-                              height: SizeConfig.safeBlockHorizontal * 64,
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1),
+                          // 円グラフ
+                          Center(
+                            child: Container(
+                              // color: Colors.grey,
+                              width: SizeConfig.safeBlockHorizontal * 80,
+                              height: SizeConfig.safeBlockHorizontal * 60,
+                              decoration:
+                                  BoxDecoration(border: Border.all(width: 1)),
                               child: Center(
-                                child: FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: Image.file(widget.image!),
-                                ),
+                                child: base64toFile(map["img"]),
                               ),
                             ),
-
-                            // between picture and rank
-                            SizedBox(
-                              width: SizeConfig.blockSizeHorizontal * 5,
+                          ),
+                          SizedBox(
+                            width: SizeConfig.blockSizeHorizontal * 8,
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: map["emotion"].length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                String emotionName =
+                                    listEmotions[index].getEmotionName;
+                                double emotionValue =
+                                    listEmotions[index].getEmotionValue * 100;
+                                String emotionPercent =
+                                    emotionValue.toInt().toString();
+                                return leftSpaceText(
+                                  5,
+                                  Text(
+                                    "${index + 1}位　$emotionName ：$emotionPercent%",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-
-                            // rank
-                            Column(
-                              children: [
-                                SizedBox(
-                                  height: SizeConfig.blockSizeVertical * 3,
-                                ),
-                                const Text(
-                                  "あなたの写真は...",
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                                SizedBox(
-                                  height: SizeConfig.blockSizeVertical * 2,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    SizedBox(
-                                      width: SizeConfig.blockSizeHorizontal * 2,
-                                    ),
-                                    Text(
-                                      map['rank'].toString(),
-                                      style: TextStyle(
-                                        color: rankGetColor(map['rank']),
-                                        fontSize: 80,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: SizeConfig.blockSizeHorizontal * 2,
-                                    ),
-                                    const Text(
-                                      "ランク！",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    // between「rank display field」and「advice field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 3,
-                    ),
-
-                    // advice field
-                    contentCard(
-                      SizeConfig.safeBlockVertical * 20,
-                      Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            leftSpaceText(
-                              5,
-                              const Text(
-                                "総評",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            // 総評の回答
-                            leftSpaceText(
-                              10,
-                              Text(
-                                map["generalReview"],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                            // もっとよくするには？
-                            SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            leftSpaceText(
-                              5,
-                              const Text(
-                                "もっとよくするには？",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            // もっとよくするには？の回答
-                            leftSpaceText(
-                              10,
-                              Text(
-                                "${map["advice_message"]}",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // between「advice field」and「graph field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 3,
-                    ),
-
-                    // graph field
-                    contentCard(
-                      SizeConfig.safeBlockVertical * 50,
-                      Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                            leftSpaceText(
-                              5.0,
-                              const Text(
-                                "あなたの表情から読み取れる感情",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: SizeConfig.blockSizeVertical * 1),
-                            // 円グラフ
-                            Center(
-                              child: Container(
-                                // color: Colors.grey,
-                                width: SizeConfig.safeBlockHorizontal * 80,
-                                height: SizeConfig.safeBlockHorizontal * 60,
-                                decoration:
-                                    BoxDecoration(border: Border.all(width: 1)),
-                                child: Center(
-                                  child: base64toFile(map["img"]),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: SizeConfig.blockSizeHorizontal * 8,
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: map["emotion"].length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  String emotionName =
-                                      listEmotions[index].getEmotionName;
-                                  double emotionValue =
-                                      listEmotions[index].getEmotionValue * 100;
-                                  String emotionPercent =
-                                      emotionValue.toInt().toString();
-                                  return leftSpaceText(
-                                    5,
-                                    Text(
-                                      "${index + 1}位　$emotionName ：$emotionPercent%",
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // between「graph field」and「under bar」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 8,
-                    ),
-                  ]),
+                  // between「グラフカード」and「under bar」
+                  SizedBox(height: SizeConfig.safeBlockVertical * 8),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
-}
-
-/*
- * emotionを扱うクラス
- */
-class Emotion {
-  final String _emotionName;
-  final double _emotionValue;
-
-  // constructor
-  Emotion(
-    this._emotionName,
-    this._emotionValue,
-  );
-
-  // getter
-  String get getEmotionName => _emotionName;
-  double get getEmotionValue => _emotionValue;
 }
 
 /* 

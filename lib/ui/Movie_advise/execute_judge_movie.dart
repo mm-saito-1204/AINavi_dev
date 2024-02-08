@@ -1,20 +1,22 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:ainavi/config/constants.dart';
 import 'package:ainavi/widget/ainavi_app_bar.dart';
-import 'package:flutter/services.dart';
+import 'package:ainavi/widget/functional_description_bar.dart';
 import 'package:ainavi/ui/Movie_advise/result_judge_movie.dart';
 import 'package:ainavi/widget/loading.dart';
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/model/tables/question.dart';
+
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'dart:developer';
-import 'package:ainavi/config/constants.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス
@@ -98,46 +100,31 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // functional description field
-                    Container(
-                      width: SizeConfig.safeBlockHorizontal * 100,
-                      height: SizeConfig.safeBlockVertical * 7.5,
-                      color: Colors.blue[100],
-                      child: Center(
-                        child: Text(
-                          recordingState == 0
-                              ? "準備ができたら開始ボタンで撮影を始めよう！"
-                              : recordingState == 1
-                                  ? "お題再生中"
-                                  : recordingState == 2
-                                      ? "撮影中"
-                                      : "撮影終了！",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // 機能説明バー
+                    functionalDescriptionBar(recordingState == 0
+                        ? "準備ができたら開始ボタンで撮影を始めよう！"
+                        : recordingState == 1
+                            ? "お題再生中"
+                            : recordingState == 2
+                                ? "撮影中"
+                                : "撮影終了！"),
 
-                    // between「functional description field」and「image display field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 3.5,
-                    ),
+                    // between「画面上部バー」and「カメラプレビュー欄」
+                    SizedBox(height: SizeConfig.safeBlockVertical * 3.5),
 
-                    // image display field
+                    // カメラプレビュー欄
                     SizedBox(
                       width: SizeConfig.safeBlockHorizontal * 75,
                       height: SizeConfig.safeBlockHorizontal * 100,
                       child: _cameraPreview(),
                     ),
 
-                    // between「image display field」and「sentence field」
+                    // between「カメラプレビュー欄」and「お題」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 4,
                     ),
 
-                    // sentence field
+                    // お題
                     Container(
                       alignment: Alignment.center,
                       width: SizeConfig.safeBlockHorizontal * 82,
@@ -151,12 +138,10 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                       ),
                     ),
 
-                    // between「sentence field」and「points field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 2,
-                    ),
+                    // between「お題」and「ポイント」
+                    SizedBox(height: SizeConfig.safeBlockVertical * 2),
 
-                    // points field
+                    // ポイント
                     SizedBox(
                       width: SizeConfig.safeBlockHorizontal * 82,
                       height: SizeConfig.safeBlockVertical * 6,
@@ -169,12 +154,12 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                       ),
                     ),
 
-                    // between「points field」and「start recording button」
+                    // between「ポイント」and「撮影開始ボタン」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 5,
                     ),
 
-                    // start recording button
+                    // 撮影開始ボタン
                     SizedBox(
                       width: SizeConfig.safeBlockHorizontal * 82,
                       height: SizeConfig.safeBlockVertical * 6,
@@ -215,7 +200,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                       ),
                     ),
 
-                    // between「start filming button」and「under bar」
+                    // between「撮影開始ボタン」and「under bar」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 6,
                     ),
@@ -246,8 +231,8 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
               child: const Text("OK"),
               onPressed: () {
                 // 再生開始
-                String record_path = "records/${widget.question.getNumber}.wav";
-                audioPlayer.play(AssetSource(record_path));
+                String recordPath = "records/${widget.question.getNumber}.wav";
+                audioPlayer.play(AssetSource(recordPath));
                 setState(() {
                   recordingState = 1;
                 });
@@ -333,7 +318,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                 await showLoadingDialog(context: context);
                 int _counter = 0;
                 while (_counter < 30) {
-                  await Future.delayed(Duration(seconds: 1));
+                  await Future.delayed(const Duration(seconds: 1));
                   _counter++;
                 }
                 Navigator.pop(context);
@@ -530,7 +515,7 @@ class ConnectAWS {
   }
 }
 
-// debug:
+// debug: バイナリのクリップボードセット
 Future<void> writeToFile(String text) async {
   final directory = await getApplicationDocumentsDirectory();
   final file = File('${directory.path}/example.txt');
@@ -542,7 +527,7 @@ Future<void> writeToFile(String text) async {
   await file.writeAsString(text);
 }
 
-//
+// wavヘッダーの長さ取得
 int getWavHeaderLength(List<int> wavBytes) {
   // RIFFチャンクが終わる位置を検索
   for (int i = 0; i < wavBytes.length - 3; i++) {
@@ -553,6 +538,7 @@ int getWavHeaderLength(List<int> wavBytes) {
   return 0;
 }
 
+// wav to base64
 String encodeWavToBase64(String filePath) {
   // WAVファイルをバイナリデータとして読み込む
   List<int> wavBytes = File(filePath).readAsBytesSync();
@@ -569,6 +555,7 @@ String encodeWavToBase64(String filePath) {
   return base64EncodedHeader + base64EncodedData;
 }
 
+// wavヘッダーのbytesを取得
 Uint8List getWavHeaderBytes(List<int> wavBytes) {
   // RIFFチャンクが終わる位置を検索
   int headerLength = 0;
@@ -581,6 +568,7 @@ Uint8List getWavHeaderBytes(List<int> wavBytes) {
   return Uint8List.fromList(wavBytes.sublist(0, headerLength));
 }
 
+// wabデータのbytesを取得
 Uint8List getWavDataBytes(List<int> wavBytes) {
   // RIFFチャンクが終わる位置を検索
   int headerLength = 0;

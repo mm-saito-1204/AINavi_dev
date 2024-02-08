@@ -1,7 +1,6 @@
 /*
- * chatgpt-API 戻り値受取モデル
+ * chatgpt-API戻り値モデル
  */
-
 class ChatGptMessage {
   ChatGptMessage({
     required this.message,

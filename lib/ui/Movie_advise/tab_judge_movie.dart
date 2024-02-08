@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:ainavi/config/size_config.dart';
+import 'package:ainavi/widget/functional_description_bar.dart';
 import 'package:ainavi/ui/Movie_advise/execute_judge_movie.dart';
 import 'package:ainavi/model/tables/question.dart';
-
-import 'package:flutter/material.dart';
 
 /* 
  * 面接解析お題選択画面を生成するクラス
@@ -135,26 +136,13 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                // functional description field
-                Container(
-                  width: SizeConfig.safeBlockHorizontal * 100,
-                  height: SizeConfig.safeBlockVertical * 7.5,
-                  color: Colors.blue[100],
-                  child: const Center(
-                    child: Text(
-                      "面接動画を撮影し、AIにアドバイスをもらおう！",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
+                // 機能説明欄
+                functionalDescriptionBar('面接動画を撮影し、AIにアドバイスをもらおう！'),
 
-                // between 「functional description field」and「search box」
+                // between 「機能説明欄」and「検索ボックス」
                 SizedBox(height: SizeConfig.blockSizeVertical * 1),
 
-                // search box
+                // 検索ボックス
                 Container(
                   height: SizeConfig.blockSizeVertical * 8,
                   width: SizeConfig.blockSizeHorizontal * 96,
@@ -255,16 +243,15 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                             },
                           ),
                         ),
-                        // 未読・未回答チェックボックス
                       ]),
                     ],
                   ),
                 ),
 
-                // between「search box」and「」
+                // between「検索ボックス」and「お題一覧」
                 SizedBox(height: SizeConfig.blockSizeVertical * 1),
 
-                // question header field
+                // お題一覧
                 Container(
                   width: SizeConfig.blockSizeHorizontal * 96,
                   decoration: const BoxDecoration(
@@ -287,7 +274,7 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                   ),
                 ),
 
-                // questions field
+                // お題一覧
                 Container(
                   height: SizeConfig.blockSizeVertical * 59,
                   width: SizeConfig.blockSizeHorizontal * 96,

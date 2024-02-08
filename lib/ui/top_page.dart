@@ -1,11 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:ainavi/config/constants.dart';
 import 'package:ainavi/ui/AI_chat/tab_ai_chat.dart';
 import 'package:ainavi/ui/Movie_advise/tab_judge_movie.dart';
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/ui/ES_advise/tab_judge_image.dart';
 import 'package:ainavi/widget/ainavi_app_bar.dart';
-
-import 'package:flutter/material.dart';
 
 /* 
  * トップ画面生成クラス

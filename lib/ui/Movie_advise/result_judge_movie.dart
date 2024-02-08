@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/widget/ainavi_app_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:ainavi/widget/functional_description_bar.dart';
+
 import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
 
 /* 
  * ESアドバイス機能結果画面を生成するクラス
@@ -40,7 +39,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
 
   @override
   Widget build(BuildContext context) {
-    _startPlaying();
+    // _startPlaying();
     Map<String, dynamic> map = widget.map;
 
     // setState() の度に実行される
@@ -64,44 +63,18 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // functional description field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        boxShadow: const [
-                          BoxShadow(
-                            spreadRadius: 0,
-                            blurRadius: 10,
-                            offset: Offset(10, 10),
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ),
-                      width: SizeConfig.safeBlockHorizontal * 100,
-                      height: SizeConfig.safeBlockVertical * 7.5,
-                      child: const Center(
-                        child: Text(
-                          "結果は以下の通りです！",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // 機能説明バー
+                    functionalDescriptionBar('結果の以下の通りです！'),
 
-                    // between「functional description field」and「rank display field」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 2.5,
-                    ),
+                    // between「機能説明バー」and「文字起こし文章」
+                    SizedBox(height: SizeConfig.safeBlockVertical * 2.5),
 
-                    // rank display field
+                    // 文字起こし文章
                     contentCard(
                       SizeConfig.safeBlockVertical * 30.6,
                       Center(
                         child: Row(
                           children: [
-                            // between movie and rank
                             Column(
                               children: [
                                 Container(
@@ -111,10 +84,8 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                 ),
                               ],
                             ),
-
-                            // rank
                             Flexible(
-                              child: Container(
+                              child: SizedBox(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +123,8 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                               "") {
                                             return Text(
                                               "${map["sentence_structure"][index]}。",
-                                              style: TextStyle(fontSize: 16),
+                                              style:
+                                                  const TextStyle(fontSize: 16),
                                             );
                                           }
                                         },
@@ -167,17 +139,15 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                       ),
                     ),
 
-                    SizedBox(
-                      height: SizeConfig.blockSizeVertical * 2,
-                    ),
+                    // between「文字起こし文章」and「控えた方がいい言葉」
+                    SizedBox(height: SizeConfig.blockSizeVertical * 2),
 
-                    // 控えた方が良い言葉
+                    // 控えた方がいい言葉
                     contentCard(
                       SizeConfig.safeBlockVertical * 20,
                       Center(
                         child: Row(
                           children: [
-                            // between movie and rank
                             Column(
                               children: [
                                 Container(
@@ -187,8 +157,6 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                 ),
                               ],
                             ),
-
-                            // rank
                             Flexible(
                               child: Container(
                                 child: Column(
@@ -244,18 +212,14 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                     ),
 
                     // between「控えた方が良い言葉」and「二重敬語」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 2,
-                    ),
+                    SizedBox(height: SizeConfig.safeBlockVertical * 2),
 
                     // 二重敬語
-                    // 控えた方が良い言葉
                     contentCard(
                       SizeConfig.safeBlockVertical * 20,
                       Center(
                         child: Row(
                           children: [
-                            // between movie and rank
                             Column(
                               children: [
                                 Container(
@@ -307,7 +271,8 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                               "") {
                                             return Text(
                                               "・${map["result_double_honorific_sentence_list"][index]}",
-                                              style: TextStyle(fontSize: 24),
+                                              style:
+                                                  const TextStyle(fontSize: 24),
                                             );
                                           }
                                         },
@@ -322,10 +287,8 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                       ),
                     ),
 
-                    // between「graph field」and「under bar」
-                    SizedBox(
-                      height: SizeConfig.safeBlockVertical * 8,
-                    ),
+                    // between「二重敬語」and「under bar」
+                    SizedBox(height: SizeConfig.safeBlockVertical * 8),
                   ]),
             ),
           ),
@@ -335,87 +298,42 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
   }
 
   // 再生開始
-  void _startPlaying() async {
-    // // 再生するファイルを指定
-    // final directory = await getApplicationDocumentsDirectory();
-    // String pathToWrite = directory.path;
-    // final localFile = '$pathToWrite/interview.wav';
+  // void _startPlaying() async {
+  //   // 再生するファイルを指定
+  //   final directory = await getApplicationDocumentsDirectory();
+  //   String pathToWrite = directory.path;
+  //   final localFile = '$pathToWrite/interview.wav';
 
-    // // 再生開始
-    // await audioPlayer.play(DeviceFileSource(localFile));
+  //   // 再生開始
+  //   await audioPlayer.play(DeviceFileSource(localFile));
 
-    // // 再生終了後、ステータス変更
-    // audioPlayer.onPlayerComplete.listen((event) {
-    //   setState(() {
-    //     _playingStatus = false;
-    //   });
-    // });
+  //   // 再生終了後、ステータス変更
+  //   audioPlayer.onPlayerComplete.listen((event) {
+  //     setState(() {
+  //       _playingStatus = false;
+  //     });
+  //   });
 
-    // setState(
-    //   () {
-    //     _playingStatus = true;
-    //   },
-    // );
-  }
+  //   setState(
+  //     () {
+  //       _playingStatus = true;
+  //     },
+  //   );
+  // }
 
   // 再生一時停止
-  void _pausePlaying() async {
-    await audioPlayer.pause();
-  }
+  // void _pausePlaying() async {
+  //   await audioPlayer.pause();
+  // }
 }
 
-/* 
- * 形態による色分け
- */
-rankGetColor(rank) {
-  MaterialColor color;
-
-  switch (rank) {
-    case 'A':
-      color = Colors.red;
-      break;
-    case 'B':
-      color = Colors.blue;
-      break;
-    case 'C':
-      color = Colors.green;
-      break;
-    case 'D':
-      color = Colors.purple;
-      break;
-    case 'E':
-      color = Colors.grey;
-      break;
-    default:
-      // 到達不可
-      color = Colors.yellow;
-      break;
-  }
-
-  return color;
-}
-
-/* 
- * base64 to file
- */
-base64toFile(String imgBase64) {
-  Uint8List imgBytes = base64Decode(imgBase64);
-  return Image.memory(imgBytes);
-}
-
-/*
- * 左にスペースを開ける用row
- */
-leftSpaceText(double leftSpace, Text text) {
-  return Row(
-    children: [
-      SizedBox(
-        width: SizeConfig.blockSizeHorizontal * leftSpace,
-      ),
-      text,
-    ],
-  );
-}
+// /*
+//  * base64 to file
+//  */
+// base64toFile(String imgBase64) {
+//   Uint8List imgBytes = base64Decode(imgBase64);
+//   return Image.memory(imgBytes);
+// }
 
 /*
  * content card

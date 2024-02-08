@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ainavi/config/constants.dart';
 
+/* 
+ * 画面最上部バー
+ */
 ainaviAppBar([String? functionTitle]) {
   // 機能名がなければ「アプリ名」
   if (functionTitle == null) {
