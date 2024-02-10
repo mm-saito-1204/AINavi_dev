@@ -49,6 +49,7 @@ class AINaviApp extends StatelessWidget {
     // アプリの生成
     return MaterialApp(
       title: AppConfig.title,
+      debugShowCheckedModeBanner: false, // debugラベルの削除
       theme: ThemeData(
         primarySwatch: AppConfig.themeColor,
       ),

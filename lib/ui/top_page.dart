@@ -60,7 +60,7 @@ class _TopPageState extends State<TopPage> {
       child: Scaffold(
         key: _scaffoldKey,
 
-        // 画面上部バー
+        // 画面上部のバー
         appBar: ainaviAppBar(),
 
         // タブバーの押下時処理

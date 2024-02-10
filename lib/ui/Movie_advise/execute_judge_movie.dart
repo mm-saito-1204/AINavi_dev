@@ -108,8 +108,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                             : recordingState == 2
                                 ? "撮影中"
                                 : "撮影終了！"),
-
-                    // between「画面上部バー」and「カメラプレビュー欄」
+                    // between「機能説明バー」and「カメラプレビュー欄」
                     SizedBox(height: SizeConfig.safeBlockVertical * 3.5),
 
                     // カメラプレビュー欄
@@ -118,7 +117,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                       height: SizeConfig.safeBlockHorizontal * 100,
                       child: _cameraPreview(),
                     ),
-
                     // between「カメラプレビュー欄」and「お題」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 4,
@@ -137,7 +135,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                         ),
                       ),
                     ),
-
                     // between「お題」and「ポイント」
                     SizedBox(height: SizeConfig.safeBlockVertical * 2),
 
@@ -153,7 +150,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                         ),
                       ),
                     ),
-
                     // between「ポイント」and「撮影開始ボタン」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 5,
@@ -199,7 +195,6 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                         ),
                       ),
                     ),
-
                     // between「撮影開始ボタン」and「under bar」
                     SizedBox(
                       height: SizeConfig.safeBlockVertical * 6,

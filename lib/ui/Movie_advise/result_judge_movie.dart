@@ -5,8 +5,6 @@ import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/widget/ainavi_app_bar.dart';
 import 'package:ainavi/widget/functional_description_bar.dart';
 
-import 'package:audioplayers/audioplayers.dart';
-
 /* 
  * ESアドバイス機能結果画面を生成するクラス
  */
@@ -27,13 +25,13 @@ class ResultJudgeMoviePage extends StatefulWidget {
  */
 class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final audioPlayer = AudioPlayer();
-  bool _playingStatus = false;
+  // final audioPlayer = AudioPlayer();
+  // bool _playingStatus = false;
 
   // 画面終了時処理
   @override
   void dispose() {
-    audioPlayer.dispose(); // 録音破棄
+    // audioPlayer.dispose(); // 録音破棄
     super.dispose();
   }
 
@@ -111,7 +109,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                       height:
                                           SizeConfig.blockSizeVertical * 0.2,
                                     ),
-                                    Container(
+                                    SizedBox(
                                       height: SizeConfig.blockSizeVertical * 20,
                                       child: ListView.builder(
                                         shrinkWrap: true,
@@ -126,6 +124,9 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                               style:
                                                   const TextStyle(fontSize: 16),
                                             );
+                                          } else {
+                                            // itemBuilderがnullを返さないため
+                                            return const SizedBox(height: 0);
                                           }
                                         },
                                       ),
@@ -158,7 +159,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                               ],
                             ),
                             Flexible(
-                              child: Container(
+                              child: SizedBox(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,8 +197,12 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                               "") {
                                             return Text(
                                               "・${map["result_refrainword"][index]}",
-                                              style: TextStyle(fontSize: 24),
+                                              style:
+                                                  const TextStyle(fontSize: 24),
                                             );
+                                          } else {
+                                            // itemBuilderがnullを返さないため
+                                            return const SizedBox(height: 0);
                                           }
                                         },
                                       ),
@@ -258,7 +263,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                       height:
                                           SizeConfig.blockSizeVertical * 0.2,
                                     ),
-                                    Container(
+                                    SizedBox(
                                       height: SizeConfig.blockSizeVertical * 12,
                                       child: ListView.builder(
                                         shrinkWrap: true,
@@ -274,6 +279,9 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                               style:
                                                   const TextStyle(fontSize: 24),
                                             );
+                                          } else {
+                                            // itemBuilderがnullを返さないため
+                                            return const SizedBox(height: 0);
                                           }
                                         },
                                       ),

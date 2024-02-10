@@ -75,7 +75,7 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
 
                   // between「機能説明バー」and「画像表示欄」
                   SizedBox(
-                    height: SizeConfig.safeBlockVertical * 3.5,
+                    height: SizeConfig.safeBlockVertical * 5,
                   ),
 
                   // 画像表示欄

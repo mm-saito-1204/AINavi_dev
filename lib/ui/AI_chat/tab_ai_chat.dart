@@ -1,3 +1,4 @@
+import 'package:ainavi/ui/AI_chat/execute_ai_chat.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ainavi/config/size_config.dart';
@@ -38,24 +39,19 @@ class _TabPageAIChatState extends State<TabPageAIChat>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  // 上部画面バー
-                  functionalDescriptionBar('AIに質問してアドバイスをもらおう！'),
-
-                  // between「上部説明バー」and「質問ボタン」
-                  SizedBox(
-                    height: SizeConfig.safeBlockVertical * 3.5,
-                  ),
+                  // 機能説明バー
+                  functionalDescriptionBar('AIにどんなことを聞きたい？'),
+                  // between「機能説明バー」and「質問ボタン」
+                  SizedBox(height: SizeConfig.safeBlockVertical * 5.5),
 
                   // 質問ボタン
-                  optionButton(context, '質問', ''),
-
+                  optionButtonCard(context, '質問'),
                   // between「質問ボタン」and「添削ボタン」
-                  SizedBox(height: SizeConfig.safeBlockVertical * 3.5),
+                  SizedBox(height: SizeConfig.safeBlockVertical * 7),
 
                   // 添削ボタン
-                  optionButton(context, '添削', ''),
-
-                  // between「select a picture button」and「start analysis button」
+                  optionButtonCard(context, '添削'),
+                  // between「添削ボタン」and「under bar」
                   SizedBox(
                     height: SizeConfig.safeBlockVertical * 4,
                   ),
@@ -68,38 +64,74 @@ class _TabPageAIChatState extends State<TabPageAIChat>
 }
 
 /*
- *質問選択ボタン - テンプレ
+ *質問選択ボタンカード - テンプレ
  */
-optionButton(BuildContext context, String text, page) {
-  return SizedBox(
-    // size
-    width: SizeConfig.safeBlockHorizontal * 58,
-    height: SizeConfig.safeBlockVertical * 6,
-    // button
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8) //こちらを適用
-            ),
-        backgroundColor: const Color.fromARGB(255, 101, 116, 163),
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => page,
-          ),
-        );
-      },
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+optionButtonCard(BuildContext context, String title) {
+  bool isQuestion = (title == '質問') ? true : false;
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ExecuteAIChatPage(isQuestion: isQuestion),
         ),
+      );
+    },
+    child: Container(
+      width: SizeConfig.safeBlockHorizontal * 80,
+      height: SizeConfig.safeBlockVertical * 30,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        // 影
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.grey, //色
+            spreadRadius: 0,
+            blurRadius: 10,
+            offset: Offset(10, 10),
+          ),
+        ],
+        // 枠線
+        border: Border.all(
+            color: const Color.fromARGB(255, 215, 230, 255), width: 10),
+        borderRadius: BorderRadius.circular(20),
+        // 背景画像
+        image: DecorationImage(
+          image: AssetImage(isQuestion
+              ? 'assets/images/chatQuestion.png'
+              : 'assets/images/chatCorrection.png'),
+          fit: BoxFit.cover,
+        ),
+        color: Colors.blue[50],
+      ),
+
+      // Cardと被ったWidgetをCardの形に保持する
+      // clipBehavior: Clip.antiAliasWithSaveLayer,
+
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            width: SizeConfig.blockSizeHorizontal * 80,
+            height: SizeConfig.blockSizeVertical * 6,
+            color: const Color.fromARGB(255, 215, 230, 255).withOpacity(0.95),
+            child: Center(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.transparent,
+                  shadows: [
+                    Shadow(offset: Offset(0, -2)),
+                  ],
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     ),
   );
