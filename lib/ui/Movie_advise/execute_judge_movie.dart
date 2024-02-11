@@ -55,7 +55,8 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
 
   // カメラ初期化
   Future<void> _initCamera() async {
-    _controller = CameraController(AppConfig.firstCamera, ResolutionPreset.max);
+    final camera = await availableCameras();
+    _controller = CameraController(camera[1], ResolutionPreset.max);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -278,6 +279,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
               onPressed: () async {
                 // debug: 結果画面強制表示
                 List<String> sentenceStructure = [
+                  // 文章
                   "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
                   "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
                   "しかし、僕のその姿を見て優しく声をかけてくれました",
@@ -285,34 +287,40 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                   "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
                   "これが、僕が御社を志望した理由です",
                 ];
-                List<String> resultNgword = [];
-                List<String> resultRefrainword = ["僕", "社長さん", "思います"];
-                List<String> resultDoubleHonorificSentenceList = [
-                  "お見えになられ",
-                ];
-                List<String> includeDoubleHonorificSentenceList = [
-                  "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
-                  "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
-                  "しかし、僕のその姿を見て優しく声をかけてくれました",
-                  "そのおかげで、いまも緊張せずに面接を受けることができています",
-                  "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
-                  "これが、僕が御社を志望した理由です",
+                List<List<String>> resultRefrainword = [
+                  // 控えた方が良い言葉リスト
+                  ["僕", "私"],
+                  ["社長さん", "社長"],
+                  ["思います", "考えます"],
                 ];
 
+                List<List<String>> resultDoubleHonorificSentenceList = [
+                  // 二重敬語リスト
+                  ["お見えになられた", "お見えになった"],
+                ];
+                // List<String> includeDoubleHonorificSentenceList = [
+                //   // 二重敬語を含んだ文リスト これもいらんやろ
+                //   "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
+                //   "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
+                //   "しかし、僕のその姿を見て優しく声をかけてくれました",
+                //   "そのおかげで、いまも緊張せずに面接を受けることができています",
+                //   "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
+                //   "これが、僕が御社を志望した理由です",
+                // ];
                 resultJudgeMovie = {
                   "sentence_structure": sentenceStructure,
-                  "result_ngword": resultNgword,
+                  // "result_ngword": resultNgword,
                   "result_refrainword": resultRefrainword,
                   "result_double_honorific_sentence_list":
                       resultDoubleHonorificSentenceList,
-                  "include_double_honorific_sentence_list":
-                      includeDoubleHonorificSentenceList
+                  // "include_double_honorific_sentence_list":
+                  //     includeDoubleHonorificSentenceList
                 };
 
-                // 秒数指定ローディング画面
+                // debug: 秒数指定ローディング画面
                 await showLoadingDialog(context: context);
                 int _counter = 0;
-                while (_counter < 30) {
+                while (_counter < 1) {
                   await Future.delayed(const Duration(seconds: 1));
                   _counter++;
                 }

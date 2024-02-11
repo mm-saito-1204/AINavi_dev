@@ -58,13 +58,17 @@ class _TabPageJudgeImageState extends State<TabPageJudgeImage>
     super.build(context);
     Map<String, dynamic> resultJudgeImage = <String, dynamic>{};
 
+    final _controller = ScrollController();
+
     return Center(
       child: Container(
         alignment: Alignment.topCenter,
         child: Scrollbar(
           thumbVisibility: true,
+          controller: _controller,
           radius: const Radius.circular(16),
           child: SingleChildScrollView(
+            controller: _controller,
             child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,

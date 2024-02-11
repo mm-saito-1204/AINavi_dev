@@ -5,6 +5,8 @@ import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/widget/ainavi_app_bar.dart';
 import 'package:ainavi/widget/functional_description_bar.dart';
 
+import 'package:substring_highlight/substring_highlight.dart';
+
 /* 
  * ESアドバイス機能結果画面を生成するクラス
  */
@@ -28,6 +30,26 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
   // final audioPlayer = AudioPlayer();
   // bool _playingStatus = false;
 
+  // デフォルトのテキストスタイル
+  final defaultStyle = const TextStyle(
+    color: Colors.black,
+    fontSize: 16,
+  );
+  // 控えた方が良い言葉・二重敬語のテキストスタイル
+  final beforeTextStyle = TextStyle(
+    color: Colors.red,
+    backgroundColor: Colors.yellow[100],
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+  // 添削後のテキストスタイル
+  final afterTextStyle = TextStyle(
+    color: Colors.blue,
+    backgroundColor: Colors.yellow[100],
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
   // 画面終了時処理
   @override
   void dispose() {
@@ -39,6 +61,42 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
   Widget build(BuildContext context) {
     // _startPlaying();
     Map<String, dynamic> map = widget.map;
+
+    // 添削後の文章
+    List<String> afterSentenceStructure = [];
+    List<String> ngRefrainword = map['result_refrainword']
+        .map((list) {
+          return list[0].toString();
+        })
+        .toList()
+        .cast<String>();
+    List<String> ngDoubleHonorificword =
+        map['result_double_honorific_sentence_list']
+            .map((list) {
+              return list[0].toString();
+            })
+            .toList()
+            .cast<String>();
+    for (String sentence in map['sentence_structure']) {
+      // sentenceごとに添削する
+      for (int i = 0; i < ngRefrainword.length; i++) {
+        if (sentence.contains(ngRefrainword[i])) {
+          // ここで添削する
+          sentence = sentence.replaceAll(
+              map['result_refrainword'][i][0], map['result_refrainword'][i][1]);
+        }
+      }
+      for (int i = 0; i < ngDoubleHonorificword.length; i++) {
+        if (sentence.contains(ngDoubleHonorificword[i])) {
+          // ここで添削する
+          sentence = sentence.replaceAll(
+              map['result_double_honorific_sentence_list'][i][0],
+              map['result_double_honorific_sentence_list'][i][1]);
+        }
+      }
+      // 添削したsentenceをafterに追加する
+      afterSentenceStructure.add(sentence);
+    }
 
     // setState() の度に実行される
     return Scaffold(
@@ -62,85 +120,23 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     // 機能説明バー
-                    functionalDescriptionBar('結果の以下の通りです！'),
+                    functionalDescriptionBar('結果は以下の通りです！'),
 
-                    // between「機能説明バー」and「文字起こし文章」
+                    // between「機能説明バー」and「あなたが話した文章」
                     SizedBox(height: SizeConfig.safeBlockVertical * 2.5),
 
-                    // 文字起こし文章
-                    contentCard(
-                      SizeConfig.safeBlockVertical * 30.6,
-                      Center(
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                Container(
-                                  width: SizeConfig.blockSizeHorizontal * 4,
-                                  height: SizeConfig.blockSizeVertical * 6,
-                                  color: Colors.blue[100],
-                                ),
-                              ],
-                            ),
-                            Flexible(
-                              child: SizedBox(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: SizeConfig.blockSizeVertical * 2,
-                                      color: Colors.blue[100],
-                                    ),
-                                    Container(
-                                      width:
-                                          SizeConfig.blockSizeHorizontal * 100,
-                                      height: SizeConfig.blockSizeVertical * 4,
-                                      color: Colors.blue[100],
-                                      child: const Text(
-                                        "文章",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    Container(
-                                      height:
-                                          SizeConfig.blockSizeVertical * 0.2,
-                                    ),
-                                    SizedBox(
-                                      height: SizeConfig.blockSizeVertical * 20,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount:
-                                            map["sentence_structure"].length,
-                                        itemBuilder: (context, index) {
-                                          if (map["sentence_structure"]
-                                                  [index] !=
-                                              "") {
-                                            return Text(
-                                              "${map["sentence_structure"][index]}。",
-                                              style:
-                                                  const TextStyle(fontSize: 16),
-                                            );
-                                          } else {
-                                            // itemBuilderがnullを返さないため
-                                            return const SizedBox(height: 0);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // あなたが話した文章
+                    sentenceContentCard('あなたが話した文章', map, defaultStyle,
+                        beforeTextStyle, true, []),
 
-                    // between「文字起こし文章」and「控えた方がいい言葉」
+                    // between「あなたが話した文章」and「添削後の文章」
+                    SizedBox(height: SizeConfig.safeBlockVertical * 2.5),
+
+                    // 添削後の文章
+                    sentenceContentCard('添削後の文章', map, defaultStyle,
+                        afterTextStyle, false, afterSentenceStructure),
+
+                    // between「添削後の文章」and「控えた方がいい言葉」
                     SizedBox(height: SizeConfig.blockSizeVertical * 2),
 
                     // 控えた方がいい言葉
@@ -196,7 +192,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                                   [index] !=
                                               "") {
                                             return Text(
-                                              "・${map["result_refrainword"][index]}",
+                                              "・${map["result_refrainword"][index][0]} → ${map["result_refrainword"][index][1]}",
                                               style:
                                                   const TextStyle(fontSize: 24),
                                             );
@@ -275,7 +271,7 @@ class ResultJudgeMovieState extends State<ResultJudgeMoviePage> {
                                                   [index] !=
                                               "") {
                                             return Text(
-                                              "・${map["result_double_honorific_sentence_list"][index]}",
+                                              "・${map["result_double_honorific_sentence_list"][index][0]} → ${map["result_double_honorific_sentence_list"][index][1]}",
                                               style:
                                                   const TextStyle(fontSize: 24),
                                             );
@@ -367,5 +363,106 @@ contentCard(height, content) {
     // Cardと被ったWidgetをCardの形に保持する
     // clipBehavior: Clip.antiAliasWithSaveLayer,
     child: content,
+  );
+}
+
+/*
+ * sentenceContentCard
+ */
+sentenceContentCard(
+    String title,
+    Map<String, dynamic> map,
+    TextStyle defaultStyle,
+    TextStyle highlightStyle,
+    bool isBefore,
+    List<String> afterSentenceStructure) {
+  // 文字起こし文章
+  return contentCard(
+    SizeConfig.safeBlockVertical * 30.6,
+    Center(
+      child: Row(
+        children: [
+          Column(
+            children: [
+              Container(
+                width: SizeConfig.blockSizeHorizontal * 4,
+                height: SizeConfig.blockSizeVertical * 6,
+                color: Colors.blue[100],
+              ),
+            ],
+          ),
+          Flexible(
+            child: SizedBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: SizeConfig.blockSizeVertical * 2,
+                    color: Colors.blue[100],
+                  ),
+                  Container(
+                    width: SizeConfig.blockSizeHorizontal * 100,
+                    height: SizeConfig.blockSizeVertical * 4,
+                    color: Colors.blue[100],
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Container(
+                    height: SizeConfig.blockSizeVertical * 0.2,
+                  ),
+                  SizedBox(
+                    height: SizeConfig.blockSizeVertical * 20,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: map["sentence_structure"].length,
+                      itemBuilder: (context, index) {
+                        return SubstringHighlight(
+                          text: isBefore
+                              ? map["sentence_structure"][index]
+                              : afterSentenceStructure[index],
+                          terms: isBefore
+                              ? map['result_refrainword']
+                                      .map((list) {
+                                        return list[0].toString();
+                                      })
+                                      .toList()
+                                      .cast<String>() +
+                                  map['result_double_honorific_sentence_list']
+                                      .map((list) {
+                                        return list[0].toString();
+                                      })
+                                      .toList()
+                                      .cast<String>()
+                              : map['result_refrainword']
+                                      .map((list) {
+                                        return list[1].toString();
+                                      })
+                                      .toList()
+                                      .cast<String>() +
+                                  map['result_double_honorific_sentence_list']
+                                      .map((list) {
+                                        return list[1].toString();
+                                      })
+                                      .toList()
+                                      .cast<String>(),
+                          textStyle: defaultStyle,
+                          textStyleHighlight: highlightStyle,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }

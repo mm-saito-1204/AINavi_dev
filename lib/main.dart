@@ -5,7 +5,6 @@ import 'package:ainavi/config/constants.dart';
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/ui/top_page.dart';
 
-import 'package:dart_openai/dart_openai.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -21,7 +20,6 @@ Future<void> main() async {
 
   //OpenAPIにAPIキーの設定
   await dotenv.load(fileName: 'assets/.env');
-  OpenAI.apiKey = dotenv.env['OPENAI_APIKEY']!;
 
   // アプリ生成
   SystemChrome.setPreferredOrientations([

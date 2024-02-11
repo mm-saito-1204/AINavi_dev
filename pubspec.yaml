@@ -29,6 +29,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   # 多言語対応
   intl: ^0.17.0
+  # テキストハイライト
+  substring_highlight:
   # チャットUI
   flutter_chat_ui: ^1.6.12
   flutter_chat_types:
@@ -81,6 +83,7 @@ flutter:
     - assets/records/
     # 環境変数
     - assets/.env
+    # ファイル
+    - assets/files/
     # chatAI用画像
-    - assets/images/chatCorrection.png
-    - assets/images/chatQuestion.png
+    - assets/images/

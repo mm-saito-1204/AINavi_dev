@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/widget/functional_description_bar.dart';
@@ -26,102 +28,90 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
   bool get wantKeepAlive => true;
 
   int questionTextFlg = 0; // 0 = question, 1 = Text
-  String selectGenre = "";
-  String selectTitle = "";
+  String selectGenre = ''; // 検索プルダウンで選択したジャンル
+  String selectTitle = ''; // 検索プルダウンで検索したタイトル
+  List<Question> selectQuestions = []; // 検索結果
 
-  // ジャンル一覧
-  late final List<String> genreList;
-  // お題一覧
-  late final List<String> questionTitleList;
-  // お題リスト
-  final questions = [
-    Question(
-      1,
-      "志望動機を教えてください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["志望理由"],
-    ),
-    Question(
-      2,
-      "学生時代に一番力を入れたことを教えてください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["ガクチカ"],
-    ),
-    Question(
-      3,
-      "競合他者ではなく、弊社を志望した理由を教えてください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["志望理由"],
-    ),
-    Question(
-      4,
-      "君の代わりなんていくらでもいるんだよ？君にしかできないこととかないの？",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["圧迫面接"],
-    ),
-    Question(
-      5,
-      "君は朝助けてくれた青年だね、合格としよう",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["合格確定"],
-    ),
-    Question(
-      6,
-      "今までの人生で、一番大変だったことを教えてください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["体験談"],
-    ),
-    Question(
-      7,
-      "今までの人生で、一番の失敗を教えてください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["体験談"],
-    ),
-    Question(
-      8,
-      "自分を動物で表すとなにになりますか？",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["特殊"],
-    ),
-    Question(
-      9,
-      "自己PRを１分で話してください",
-      ["過去→現在→未来の流れを意識しよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["自己PR"],
-    ),
-    Question(
-      10,
-      "ベンチプレスで100kgを超える方法を教えてください",
-      ["胸椎を立ててバーと胸の距離を縮めよう", "できるだけ簡潔にまとめよう", "自分が聞いて納得できる回答か確認しよう"],
-      ["トレーニング"],
-    ),
-  ];
+  List<dynamic> questionGenreList = []; // プルダウン表示用ジャンル一覧
+  List<dynamic> questionTitleList = []; // プルダウン表示用お題名一覧
+  List<Question> questions = []; // お題リスト
+
+  // 問題用jsonロード
+  String jsonData = '';
+  Future<void> loadJsonAsset() async {
+    jsonData = '';
+    String loadData =
+        await rootBundle.loadString('assets/files/questions.json');
+    List<dynamic> jsonList = json.decode(loadData)['questions'];
+
+    for (int i = 0; i < jsonList.length; i++) {
+      String title = jsonList[i]['title']!;
+      var points = jsonList[i]['points']!;
+      var genres = jsonList[i]['genres']!;
+      questions.add(Question(
+        i + 1,
+        title,
+        points,
+        genres,
+      ));
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    Future(() async {
+      // 問題取得：jsonからquestionのListを取得
+      await loadJsonAsset();
 
-    // questionsのジャンルを取得し、重複排除した結果をgenreListとして保存
-    List<String> tmpGenreList = [""];
-    questions.forEach((question) {
-      tmpGenreList += question.getGenres;
+      // 検索プルダウン用：questionsのジャンルを取得し、重複排除した結果をquestionGenreListとして保存
+      List<dynamic> tmpquestionGenreList = [''];
+      questions.forEach((question) {
+        tmpquestionGenreList += question.getGenres;
+      });
+      questionGenreList = tmpquestionGenreList.toSet().toList();
+
+      // 検索プルダウン用：questionsのお題を取得し、重複排除した結果をquestionTitleListとして保存
+      List<String> tmpQuestionTitleList = [''];
+      tmpQuestionTitleList = questions
+          .map((q) {
+            return q.getSubject;
+          })
+          .toSet()
+          .toList();
+      questionTitleList = [''] + tmpQuestionTitleList;
+
+      setState(() {});
     });
-    genreList = tmpGenreList.toSet().toList();
-
-    // questionsのお題を取得し、重複排除した結果をquestionTitleListとして保存
-    List<String> tmpQuestionTitleList = [""];
-    tmpQuestionTitleList = questions
-        .map((q) {
-          return q.getSubject;
-        })
-        .toSet()
-        .toList();
-    questionTitleList = [""] + tmpQuestionTitleList;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    //　事前の絞り込み
+    selectQuestions = [];
+    for (Question question in questions) {
+      // ジャンル・タイトルが未選択の場合、挿入
+      if (selectGenre == '' && selectTitle == '') {
+        selectQuestions.add(question);
+      }
+      // ジャンルが一致していてタイトルが未選択の場合、挿入
+      else if (question.getGenres.contains(selectGenre) && selectTitle == '') {
+        selectQuestions.add(question);
+      }
+      // タイトルが一致していてジャンルが未選択の場合、挿入
+      else if (question.getSubject == selectTitle && selectGenre == '') {
+        selectQuestions.add(question);
+      }
+      // ジャンル・タイトルが一致している場合、挿入
+      else if (question.getGenres.contains(selectGenre) &&
+          question.getSubject == selectTitle) {
+        selectQuestions.add(question);
+      }
+    }
+
+    final _controller = ScrollController();
 
     // 画面メインコンテンツ
     return Center(
@@ -129,8 +119,10 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
         alignment: Alignment.topCenter,
         child: Scrollbar(
           thumbVisibility: true,
+          controller: _controller,
           radius: const Radius.circular(16),
           child: SingleChildScrollView(
+            controller: _controller,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -165,7 +157,7 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                         children: [
                           SizedBox(height: SizeConfig.blockSizeVertical * 0.7),
                           const Text(
-                            "検索ボックス",
+                            '検索ボックス',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -176,13 +168,13 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "ジャンル",
+                            'ジャンル',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: SizeConfig.blockSizeVertical * 1.7),
                           const Text(
-                            "タイトル",
+                            'タイトル',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold),
                           ),
@@ -196,15 +188,15 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                           width: SizeConfig.blockSizeHorizontal * 40,
                           child: DropdownButton<String>(
                             value: selectGenre,
-                            items: genreList
-                                .map((String list) => DropdownMenuItem(
-                                    value: list,
+                            items: questionGenreList
+                                .map((dynamic list) => DropdownMenuItem(
+                                    value: list.toString(),
                                     child: Container(
                                       width:
                                           SizeConfig.blockSizeHorizontal * 30,
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        list,
+                                        list.toString(),
                                         softWrap: false,
                                       ),
                                     )))
@@ -224,14 +216,14 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                           child: DropdownButton<String>(
                             value: selectTitle,
                             items: questionTitleList
-                                .map((String list) => DropdownMenuItem(
-                                    value: list,
+                                .map((dynamic list) => DropdownMenuItem(
+                                    value: list.toString(),
                                     child: Container(
                                       width:
                                           SizeConfig.blockSizeHorizontal * 30,
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        list,
+                                        list.toString(),
                                         softWrap: false,
                                       ),
                                     )))
@@ -266,7 +258,7 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                     ],
                   ),
                   child: const Text(
-                    "  お題一覧",
+                    '  お題一覧',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -290,17 +282,9 @@ class _TabPageJudgeMovieState extends State<TabPageJudgeMovie>
                     ],
                   ),
                   child: ListView.builder(
-                    itemCount: questions.length,
+                    itemCount: selectQuestions.length,
                     itemBuilder: (context, index) {
-                      if (((selectGenre == "") && (selectTitle == "")) ||
-                          ((selectGenre == "") &&
-                              (questions[index].getSubject == selectTitle)) ||
-                          ((questions[index].getGenres[0] == selectGenre) &&
-                              (selectTitle == ""))) {
-                        return _listTileQuestion(questions[index], context);
-                      } else {
-                        return null;
-                      }
+                      return _listTileQuestion(selectQuestions[index], context);
                     },
                   ),
                 ),
@@ -324,8 +308,8 @@ _listTileQuestion(Question question, BuildContext context) {
         color: Colors.blue,
         size: 30.0,
       ),
-      title: Text("${question.getNumber.toString()}. ${question.getSubject}"),
-      subtitle: Text("ジャンル： ${question.getGenres[0]}"),
+      title: Text('${question.getNumber.toString()}. ${question.getSubject}'),
+      subtitle: Text('ジャンル： ${question.getGenres[0]}'),
       onTap: () {
         _tapTile(question, context);
       },
@@ -341,8 +325,8 @@ _tapTile(Question question, BuildContext context) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text("このお題の動画を撮影・解析しますか？"),
-        content: Text("お題：${question.getSubject}\n${question.getPoints[0]}"),
+        title: const Text('このお題の動画を撮影・解析しますか？'),
+        content: Text('お題：${question.getSubject}\n${question.getPoints[0]}'),
         actions: <Widget>[
           TextButton(
             child: const Text('いいえ'),

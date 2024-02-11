@@ -4,8 +4,8 @@
 class Question {
   int _number;
   String _subject; // お題
-  List<String> _points;
-  List<String> _genres;
+  List<dynamic> _points;
+  List<dynamic> _genres;
 
   // constructor
   Question(
@@ -18,8 +18,8 @@ class Question {
   // getter
   int get getNumber => _number;
   String get getSubject => _subject;
-  List<String> get getPoints => _points;
-  List<String> get getGenres => _genres;
+  List<dynamic> get getPoints => _points;
+  List<dynamic> get getGenres => _genres;
 
   // setter
 }
