@@ -8,7 +8,7 @@ class AppConfig {
 
 // aws 定数
 class AWSConfig {
-  static const String ipAddress = '13.230.221.120'; // awsのIPアドレス
+  static const String ipAddress = '54.250.42.39'; // awsのIPアドレス
   static const String judgeImageURL =
       'http://${AWSConfig.ipAddress}:8000/judge_photo'; // 画像解析機能のURL
   static const String judgeMovieURL =

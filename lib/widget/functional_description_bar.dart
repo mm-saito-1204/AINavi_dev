@@ -5,7 +5,7 @@ import 'package:ainavi/config/size_config.dart';
 functionalDescriptionBar(String text) {
   return Container(
     width: SizeConfig.safeBlockHorizontal * 100,
-    height: SizeConfig.safeBlockVertical * 7.5,
+    height: SizeConfig.safeBlockVertical * 7,
     decoration: BoxDecoration(
       color: Colors.blue[100],
       boxShadow: const [

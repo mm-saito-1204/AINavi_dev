@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import 'package:ainavi/config/size_config.dart';
 import 'package:ainavi/widget/functional_description_bar.dart';
@@ -273,6 +274,8 @@ _innerShadow() {
   );
 }
 
+// debug: 分析回数のカウント
+int executeCount = 0;
 // 分析開始
 Future<Map<String, dynamic>> startJudge(
     BuildContext context, File? _image) async {
@@ -280,9 +283,6 @@ Future<Map<String, dynamic>> startJudge(
   try {
     // ローディング画面表示
     await showLoadingDialog(context: context);
-
-    // debug: 5秒待つ
-    // await stopFiveSeconds();
 
     // aws 接続
     resultJudgeImage = await ConnectAWS.uploadImage(_image);
@@ -300,11 +300,11 @@ Future<Map<String, dynamic>> startJudge(
   return resultJudgeImage;
 }
 
-// debug: 5秒待つ(ロード画面表示用)
+// debug: 3秒待つ(固定ロード画面表示用)
 Future<void> stopFiveSeconds() async {
   int _counter = 0;
 
-  while (_counter < 5) {
+  while (_counter < 3) {
     await Future.delayed(const Duration(seconds: 1));
     _counter++;
   }

@@ -110,41 +110,43 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                                 ? "撮影中"
                                 : "撮影終了！"),
                     // between「機能説明バー」and「カメラプレビュー欄」
-                    SizedBox(height: SizeConfig.safeBlockVertical * 3.5),
+                    // SizedBox(height: SizeConfig.safeBlockVertical * 3.5),
 
                     // カメラプレビュー欄
                     SizedBox(
-                      width: SizeConfig.safeBlockHorizontal * 75,
-                      height: SizeConfig.safeBlockHorizontal * 100,
+                      width: SizeConfig.safeBlockHorizontal * 100, // old:75
+                      height: SizeConfig.safeBlockHorizontal * 132, // old:100
                       child: _cameraPreview(),
                     ),
                     // between「カメラプレビュー欄」and「お題」
                     SizedBox(
-                      height: SizeConfig.safeBlockVertical * 4,
+                      height: SizeConfig.safeBlockVertical * 1,
                     ),
 
                     // お題
                     Container(
                       alignment: Alignment.center,
                       width: SizeConfig.safeBlockHorizontal * 82,
-                      height: SizeConfig.safeBlockVertical * 6,
+                      height: SizeConfig.safeBlockVertical * 5,
                       child: Text(
                         "お題：${widget.question.getSubject}",
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+
                     // between「お題」and「ポイント」
-                    SizedBox(height: SizeConfig.safeBlockVertical * 2),
+                    // SizedBox(height: SizeConfig.safeBlockVertical * 0.5),
 
                     // ポイント
-                    SizedBox(
+                    Container(
+                      alignment: Alignment.center,
                       width: SizeConfig.safeBlockHorizontal * 82,
-                      height: SizeConfig.safeBlockVertical * 6,
+                      height: SizeConfig.safeBlockVertical * 5,
                       child: Text(
-                        "ポイント：${widget.question.getPoints[0]}",
+                        "Point：${widget.question.getPoints[0]}",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -153,7 +155,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                     ),
                     // between「ポイント」and「撮影開始ボタン」
                     SizedBox(
-                      height: SizeConfig.safeBlockVertical * 5,
+                      height: SizeConfig.safeBlockVertical * 2.5,
                     ),
 
                     // 撮影開始ボタン
@@ -280,16 +282,16 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                 // debug: 結果画面強制表示
                 List<String> sentenceStructure = [
                   // 文章
-                  "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
-                  "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
-                  "しかし、僕のその姿を見て優しく声をかけてくれました",
+                  "俺が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
+                  "御社の社長さんがお見えになられたとき、俺はとても緊張していました",
+                  "しかし、俺のその姿を見て優しく声をかけてくれました",
                   "そのおかげで、いまも緊張せずに面接を受けることができています",
-                  "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
-                  "これが、僕が御社を志望した理由です",
+                  "俺も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
+                  "これが、俺が御社を志望した理由です",
                 ];
                 List<List<String>> resultRefrainword = [
                   // 控えた方が良い言葉リスト
-                  ["僕", "私"],
+                  ["俺", "私"],
                   ["社長さん", "社長"],
                   ["思います", "考えます"],
                 ];
@@ -300,12 +302,12 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                 ];
                 // List<String> includeDoubleHonorificSentenceList = [
                 //   // 二重敬語を含んだ文リスト これもいらんやろ
-                //   "僕が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
-                //   "御社の社長さんがお見えになられたとき、僕はとても緊張していました",
-                //   "しかし、僕のその姿を見て優しく声をかけてくれました",
+                //   "俺が御社を志望した理由は、御社の経営理念である「人に優しく、いい世界を」に深く共感したからです",
+                //   "御社の社長さんがお見えになられたとき、俺はとても緊張していました",
+                //   "しかし、俺のその姿を見て優しく声をかけてくれました",
                 //   "そのおかげで、いまも緊張せずに面接を受けることができています",
-                //   "僕も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
-                //   "これが、僕が御社を志望した理由です",
+                //   "俺も、御社の社長さんのように人に優しくし、いい世界にしていきたいと考えています",
+                //   "これが、俺が御社を志望した理由です",
                 // ];
                 resultJudgeMovie = {
                   "sentence_structure": sentenceStructure,
@@ -321,7 +323,7 @@ class ResultJudgeMovieState extends State<ExecuteJudgeMoviePage> {
                 await showLoadingDialog(context: context);
                 int _counter = 0;
                 while (_counter < 1) {
-                  await Future.delayed(const Duration(seconds: 1));
+                  await Future.delayed(const Duration(seconds: 4));
                   _counter++;
                 }
                 Navigator.pop(context);
